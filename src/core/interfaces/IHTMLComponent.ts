@@ -1,3 +1,3 @@
 export interface IHTMLComponent {
-  render(): HTMLElement;
+  render(): string;
 }

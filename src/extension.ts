@@ -11,30 +11,37 @@ export function activate(context: vscode.ExtensionContext) {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken,
       ) {
-        const provider = new WebviewContentProvider();
+        try {
+          const provider = new WebviewContentProvider(context);
 
-        // Set initial content only if document has content
-        const text = document.getText().trim();
-        if (text) {
-          webviewPanel.webview.html = provider.getContent(text);
-        }
+          // Set initial content only if document has content
+          const text = document.getText().trim();
+          if (text) {
+            webviewPanel.webview.html = provider.getContent(text);
+          }
 
-        // Add editor title menu item
-        webviewPanel.webview.options = { enableScripts: true };
+          // Add editor title menu item
+          webviewPanel.webview.options = { enableScripts: true };
 
-        // Handle document changes
-        const changeDocumentSubscription =
-          vscode.workspace.onDidChangeTextDocument((e) => {
-            if (e.document.uri.toString() === document.uri.toString()) {
-              const newText = e.document.getText().trim();
-              webviewPanel.webview.html = provider.getContent(newText);
-            }
+          // Handle document changes
+          const changeDocumentSubscription =
+            vscode.workspace.onDidChangeTextDocument((e) => {
+              if (e.document.uri.toString() === document.uri.toString()) {
+                const newText = e.document.getText().trim();
+                webviewPanel.webview.html = provider.getContent(newText);
+              }
+            });
+
+          // Clean up when the editor is closed
+          webviewPanel.onDidDispose(() => {
+            changeDocumentSubscription.dispose();
           });
-
-        // Clean up when the editor is closed
-        webviewPanel.onDidDispose(() => {
-          changeDocumentSubscription.dispose();
-        });
+        } catch (error) {
+          console.error("Error rendering template:", error);
+          vscode.window.showErrorMessage(
+            `Error rendering template: ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
       },
     },
     {

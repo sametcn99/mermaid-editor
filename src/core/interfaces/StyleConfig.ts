@@ -1,4 +1,12 @@
 export interface StyleConfig {
-  selector: string;
-  rules: Partial<CSSStyleDeclaration>;
+  editorWidth: string;
+  previewWidth: string;
+  fontFamily: string;
+  fontSize: string;
+  lineHeight: string;
+  theme: {
+    background: string;
+    foreground: string;
+    border: string;
+  };
 }
