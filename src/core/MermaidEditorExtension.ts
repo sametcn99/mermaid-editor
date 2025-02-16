@@ -6,10 +6,10 @@ import { WebviewService } from './services/WebviewService';
 
 export class MermaidEditorExtension {
   private webviewProvider: WebviewContentProvider;
-  private webviewPanel: vscode.WebviewPanel | undefined;
   private editorService: EditorService;
-  private exportService: ExportService | undefined;
   private webviewService: WebviewService;
+  private exportService: ExportService | undefined;
+  private webviewPanel: vscode.WebviewPanel | undefined;
 
   constructor(private context: vscode.ExtensionContext) {
     this.webviewProvider = new WebviewContentProvider(context);
