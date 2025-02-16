@@ -136,7 +136,7 @@ body {
 }
 
 .keyboard-shortcuts {
-  position: fixed;
+  position: absolute;
   bottom: 16px;
   left: 16px;
   color: var(--vscode-descriptionForeground);
