@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'none'; img-src <%= cspSource %> https: data:; script-src <%= cspSource %> 'unsafe-inline' https://cdn.jsdelivr.net 'unsafe-eval'; style-src <%= cspSource %> https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; font-src <%= cspSource %> <%= webfontsUri %> data: 'self';"
+    content="default-src 'none'; worker-src blob:; img-src <%= cspSource %> https: data:; script-src <%= cspSource %> blob: 'unsafe-inline' 'unsafe-eval'; style-src <%= cspSource %> 'unsafe-inline'; font-src <%= cspSource %> <%= webfontsUri %> data: 'self';"
   />
   <title><%- t('Mermaid Editor') %></title>
 
@@ -26,14 +26,34 @@
     }
   </style>
   <link rel="stylesheet" href="<%= fontAwesomeCssUri %>" />
+  <link rel="stylesheet" href="<%= monacoEditorCssUri %>" />
 
-  <!-- Load Monaco Editor from CDN -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/editor/editor.main.css"
-  />
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script>
+  <!-- Configure Monaco Editor environment -->
+  <script>
+    var monacoEditorRoot = '<%= monacoEditorRoot %>';
+    var require = { paths: { 'vs': monacoEditorRoot + '/vs' } };
+  </script>
 
-  <!-- Load Mermaid from node_modules -->
+  <!-- Load Monaco Editor -->
+  <script src="<%= monacoEditorRoot %>/vs/loader.js"></script>
+
+  <!-- Configure Monaco Workers -->
+  <script>
+    self.MonacoEnvironment = {
+      getWorkerUrl: function (moduleId, label) {
+        const workerPath = monacoEditorRoot + '/vs/base/worker/workerMain.js';
+        const workerScript = `
+          self.MonacoEnvironment = {
+            baseUrl: '${monacoEditorRoot}'
+          };
+          importScripts('${workerPath}');
+        `;
+        const blob = new Blob([workerScript], { type: 'text/javascript' });
+        return URL.createObjectURL(blob);
+      }
+    };
+  </script>
+
+  <!-- Load Mermaid -->
   <script src="<%= mermaidUri %>"></script>
 </head>

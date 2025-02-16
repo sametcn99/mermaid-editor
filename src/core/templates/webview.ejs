@@ -6,56 +6,62 @@
       <%- include('./components/toolbar') %>
       <div class="content">
         <div class="editor-container">
-          <%- include('./components/editor') %>
+          <div id="monaco-editor"></div>
         </div>
         <%- include('./components/preview') %>
       </div>
     </div>
 
-    <!-- Include scripts with proper tags -->
+    <!-- Include scripts in proper order -->
     <script src="<%= scriptUri %>/shared.js"></script>
     <script src="<%= scriptUri %>/editor.js"></script>
     <script src="<%= scriptUri %>/preview.js"></script>
     <script src="<%= scriptUri %>/toolbar.js"></script>
 
-    <!-- Initialize mermaid and setup -->
+    <!-- Initialize mermaid -->
     <script>
       window.mermaidText = `<%- mermaidText %>`;
 
       document.addEventListener("DOMContentLoaded", () => {
-        mermaid.initialize({
-          startOnLoad: false,
-          securityLevel: "strict",
-          logLevel: "error",
-          theme: "default"
-        });
+        try {
+          mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: "strict",
+            logLevel: "error",
+            theme: document.body.classList.contains("vscode-dark")
+              ? "dark"
+              : "default",
+          });
 
-        if (window.mermaidText) {
-          updateDiagram(window.mermaidText);
-          setTimeout(() => {
-            if (window.fitToScreen) {
-              window.fitToScreen();
-            }
-          }, 100);
-        }
-
-        window.addEventListener("message", (event) => {
-          const message = event.data;
-          switch (message.command) {
-            case "update":
-              if (message.text) {
-                updateDiagram(message.text);
-              }
-              break;
-            case "theme-change":
-              mermaid.initialize({
-                theme: message.theme === "dark" ? "dark" : "default",
-                securityLevel: "strict"
-              });
-              updateDiagram(window.mermaidText);
-              break;
+          if (window.mermaidText) {
+            updateDiagram(window.mermaidText);
           }
-        });
+
+          window.addEventListener("message", (event) => {
+            const message = event.data;
+            switch (message.command) {
+              case "update":
+                if (message.text) {
+                  updateDiagram(message.text);
+                }
+                break;
+              case "theme-change":
+                mermaid.initialize({
+                  theme: message.theme === "dark" ? "dark" : "default",
+                  securityLevel: "strict",
+                });
+                updateDiagram(window.mermaidText);
+                break;
+            }
+          });
+        } catch (error) {
+          console.error("Failed to initialize Mermaid:", error);
+          document.querySelector(".preview-container").innerHTML = `
+            <div class="error" style="padding: 1em; color: var(--vscode-errorForeground);">
+              Failed to initialize diagram preview: ${error.message}
+            </div>
+          `;
+        }
       });
     </script>
   </body>

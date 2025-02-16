@@ -74,10 +74,16 @@ export class MermaidEditorExtension {
         "mermaid",
         "dist",
       );
+      const monacoEditorRoot = vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "node_modules",
+        "monaco-editor",
+        "min",
+      );
 
       webviewPanel.webview.options = {
         enableScripts: true,
-        localResourceRoots: [localResourceRoot, fontAwesomeRoot, mermaidRoot],
+        localResourceRoots: [localResourceRoot, fontAwesomeRoot, mermaidRoot, monacoEditorRoot],
       };
 
       // Get URIs for resources
@@ -94,6 +100,7 @@ export class MermaidEditorExtension {
       const mermaidUri = webviewPanel.webview.asWebviewUri(
         vscode.Uri.joinPath(mermaidRoot, "mermaid.min.js"),
       );
+      const monacoEditorRootUri = webviewPanel.webview.asWebviewUri(monacoEditorRoot);
 
       // Set initial content with resource URIs
       const text = document.getText().trim();
@@ -104,6 +111,9 @@ export class MermaidEditorExtension {
         cspSource: webviewPanel.webview.cspSource,
         scriptUri: scriptUri.toString(),
         mermaidUri: mermaidUri.toString(),
+        monacoEditorRoot: monacoEditorRootUri.toString(),
+        monacoEditorUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.js',
+        monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.css',
       });
 
       // Handle document changes
@@ -120,14 +130,26 @@ export class MermaidEditorExtension {
                 cspSource: webviewPanel.webview.cspSource,
                 scriptUri: scriptUri.toString(),
                 mermaidUri: mermaidUri.toString(),
+                monacoEditorRoot: monacoEditorRootUri.toString(),
+                monacoEditorUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.js',
+                monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.css',
               },
             );
           }
         });
 
-      // Handle webview messages
-      webviewPanel.webview.onDidReceiveMessage((message) => {
+      // Handle messages from webview
+      webviewPanel.webview.onDidReceiveMessage(async (message) => {
         switch (message.command) {
+          case "editorChange":
+            const edit = new vscode.WorkspaceEdit();
+            edit.replace(
+              document.uri,
+              new vscode.Range(0, 0, document.lineCount, 0),
+              message.text
+            );
+            await vscode.workspace.applyEdit(edit);
+            break;
           case "export":
             this.handleExport(document, message.format as "png" | "svg");
             break;

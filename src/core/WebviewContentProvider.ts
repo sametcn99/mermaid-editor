@@ -11,6 +11,9 @@ interface ResourceUris {
   cspSource: string;
   scriptUri: string; // Add scriptUri to the interface
   mermaidUri: string; // Mermaid.js URI'sini ekledik
+  monacoEditorRoot: string;
+  monacoEditorUri: string;
+  monacoEditorCssUri: string;
 }
 
 export class WebviewContentProvider {
@@ -60,6 +63,11 @@ export class WebviewContentProvider {
         throw new Error("Template file is empty");
       }
 
+      // Ensure all required resources are available
+      if (!resources?.monacoEditorRoot) {
+        throw new Error("Monaco Editor root path is required");
+      }
+
       this.content = ejs.render(
         template,
         {
@@ -73,6 +81,9 @@ export class WebviewContentProvider {
           cspSource: resources?.cspSource,
           scriptUri: resources?.scriptUri, // Pass scriptUri to template
           mermaidUri: resources?.mermaidUri, // Mermaid URI'sini template'e gönder
+          monacoEditorRoot: resources.monacoEditorRoot,
+          monacoEditorUri: resources?.monacoEditorUri,
+          monacoEditorCssUri: resources?.monacoEditorCssUri
         },
         {
           root: this.templatePath, // Set the root directory for includes
