@@ -2,9 +2,9 @@
 function loadMonaco() {
   return new Promise((resolve, reject) => {
     try {
-      require(['vs/editor/editor.main'], resolve, reject);
+      require(["vs/editor/editor.main"], resolve, reject);
     } catch (error) {
-      console.error('Failed to load Monaco:', error);
+      console.error("Failed to load Monaco:", error);
       reject(error);
     }
   });
@@ -13,88 +13,98 @@ function loadMonaco() {
 async function initializeEditor() {
   try {
     await loadMonaco();
-    
+
     // Register Mermaid language
-    monaco.languages.register({ id: 'mermaid' });
-    
+    monaco.languages.register({ id: "mermaid" });
+
     // Configure Mermaid language features
-    monaco.languages.setMonarchTokensProvider('mermaid', {
+    monaco.languages.setMonarchTokensProvider("mermaid", {
       tokenizer: {
         root: [
           // Keywords
-          [/\b(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph)\b/, "keyword"],
-          [/\b(TB|TD|BT|RL|LR|participant|actor|class|state|title|section|loop|alt|opt|par|rect)\b/, "keyword"],
-          
+          [
+            /\b(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|gantt|pie|gitGraph)\b/,
+            "keyword",
+          ],
+          [
+            /\b(TB|TD|BT|RL|LR|participant|actor|class|state|title|section|loop|alt|opt|par|rect)\b/,
+            "keyword",
+          ],
+
           // Arrows and relationships
           [/[-.=]>|--[>x]|==[\]>x]|--[o\|]|\.\.[\]>]/, "arrow"],
-          
+
           // Comments
           [/%%.*$/, "comment"],
           [/<!--/, "comment", "@comment"],
-          
+
           // Strings
           [/"/, "string", "@string_double"],
           [/'/, "string", "@string_single"],
-          
+
           // Identifiers and labels
           [/[A-Za-z][A-Za-z0-9_-]*/, "identifier"],
-          
+
           // Brackets
           [/[\[\](){}<>]/, "@brackets"],
-          
+
           // Whitespace
           [/[ \t\r\n]+/, "white"],
         ],
-        
+
         comment: [
           [/[^-]+/, "comment"],
           [/-->/, "comment", "@pop"],
-          [/-/, "comment"]
+          [/-/, "comment"],
         ],
-        
+
         string_double: [
           [/[^\\"]+/, "string"],
-          [/"/, "string", "@pop"]
+          [/"/, "string", "@pop"],
         ],
-        
+
         string_single: [
           [/[^\\']+/, "string"],
-          [/'/, "string", "@pop"]
+          [/'/, "string", "@pop"],
         ],
-      }
+      },
     });
 
     // Configure Mermaid language configuration
-    monaco.languages.setLanguageConfiguration('mermaid', {
+    monaco.languages.setLanguageConfiguration("mermaid", {
       comments: {
-        lineComment: '%%',
-        blockComment: ['%%{', '}%%']
+        lineComment: "%%",
+        blockComment: ["%%{", "}%%"],
       },
       brackets: [
-        ['{', '}'],
-        ['[', ']'],
-        ['(', ')']
+        ["{", "}"],
+        ["[", "]"],
+        ["(", ")"],
       ],
       autoClosingPairs: [
-        { open: '{', close: '}' },
-        { open: '[', close: ']' },
-        { open: '(', close: ')' },
+        { open: "{", close: "}" },
+        { open: "[", close: "]" },
+        { open: "(", close: ")" },
         { open: '"', close: '"' },
-        { open: "'", close: "'" }
+        { open: "'", close: "'" },
       ],
       surroundingPairs: [
-        { open: '{', close: '}' },
-        { open: '[', close: ']' },
-        { open: '(', close: ')' },
+        { open: "{", close: "}" },
+        { open: "[", close: "]" },
+        { open: "(", close: ")" },
         { open: '"', close: '"' },
-        { open: "'", close: "'" }
-      ]
+        { open: "'", close: "'" },
+      ],
     });
 
     // Get VS Code's current theme colors
     const computedStyle = getComputedStyle(document.body);
-    const backgroundColor = computedStyle.getPropertyValue("--vscode-editor-background");
-    const foregroundColor = computedStyle.getPropertyValue("--vscode-editor-foreground");
+    const backgroundColor = computedStyle.getPropertyValue(
+      "--vscode-editor-background",
+    );
+    const foregroundColor = computedStyle.getPropertyValue(
+      "--vscode-editor-foreground",
+    );
 
     // Get VS Code's current theme type
     const vsThemeKind = document.body.classList.contains("vscode-dark")
@@ -108,12 +118,12 @@ async function initializeEditor() {
       base: vsThemeKind,
       inherit: true,
       rules: [
-        { token: 'keyword', foreground: '569CD6', fontStyle: 'bold' },
-        { token: 'arrow', foreground: '00B7C3' },
-        { token: 'string', foreground: 'CE9178' },
-        { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
-        { token: 'identifier', foreground: '4EC9B0' },
-        { token: '@brackets', foreground: 'FFD700' }
+        { token: "keyword", foreground: "569CD6", fontStyle: "bold" },
+        { token: "arrow", foreground: "00B7C3" },
+        { token: "string", foreground: "CE9178" },
+        { token: "comment", foreground: "6A9955", fontStyle: "italic" },
+        { token: "identifier", foreground: "4EC9B0" },
+        { token: "@brackets", foreground: "FFD700" },
       ],
       colors: {
         "editor.background": backgroundColor || null,
@@ -122,24 +132,27 @@ async function initializeEditor() {
     });
 
     // Create editor instance
-    const editor = monaco.editor.create(document.getElementById("monaco-editor"), {
-      value: window.mermaidText || "",
-      language: "mermaid",
-      theme: "vscode-custom",
-      minimap: { enabled: false },
-      automaticLayout: true,
-      fontSize: 14,
-      lineNumbers: "on",
-      scrollBeyondLastLine: false,
-      wordWrap: "on",
-      formatOnType: true,
-      formatOnPaste: true,
-      renderWhitespace: "selection",
-      tabSize: 2,
-      insertSpaces: true,
-      quickSuggestions: true,
-      suggestOnTriggerCharacters: true
-    });
+    const editor = monaco.editor.create(
+      document.getElementById("monaco-editor"),
+      {
+        value: window.mermaidText || "",
+        language: "mermaid",
+        theme: "vscode-custom",
+        minimap: { enabled: false },
+        automaticLayout: true,
+        fontSize: 14,
+        lineNumbers: "on",
+        scrollBeyondLastLine: false,
+        wordWrap: "on",
+        formatOnType: true,
+        formatOnPaste: true,
+        renderWhitespace: "selection",
+        tabSize: 2,
+        insertSpaces: true,
+        quickSuggestions: true,
+        suggestOnTriggerCharacters: true,
+      },
+    );
 
     // Handle editor changes
     editor.onDidChangeModelContent(
@@ -154,9 +167,9 @@ async function initializeEditor() {
     );
 
     // Handle external content updates
-    window.addEventListener('message', event => {
+    window.addEventListener("message", (event) => {
       const message = event.data;
-      if (message.command === 'update' && message.text) {
+      if (message.command === "update" && message.text) {
         const currentPosition = editor.getPosition();
         const currentScrollPosition = editor.getScrollPosition();
         editor.setValue(message.text);
@@ -190,12 +203,12 @@ async function initializeEditor() {
                 : "vs",
           inherit: true,
           rules: [
-            { token: 'keyword', foreground: '569CD6', fontStyle: 'bold' },
-            { token: 'arrow', foreground: '00B7C3' },
-            { token: 'string', foreground: 'CE9178' },
-            { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
-            { token: 'identifier', foreground: '4EC9B0' },
-            { token: '@brackets', foreground: 'FFD700' }
+            { token: "keyword", foreground: "569CD6", fontStyle: "bold" },
+            { token: "arrow", foreground: "00B7C3" },
+            { token: "string", foreground: "CE9178" },
+            { token: "comment", foreground: "6A9955", fontStyle: "italic" },
+            { token: "identifier", foreground: "4EC9B0" },
+            { token: "@brackets", foreground: "FFD700" },
           ],
           colors: {
             "editor.background": newBackgroundColor || null,
@@ -215,7 +228,7 @@ async function initializeEditor() {
       onCursorPositionChange(e.position);
     });
   } catch (error) {
-    console.error('Failed to initialize Monaco Editor:', error);
+    console.error("Failed to initialize Monaco Editor:", error);
     document.getElementById("monaco-editor").innerHTML = `
       <div class="error" style="padding: 1em; color: var(--vscode-errorForeground);">
         Failed to initialize editor: ${error.message}

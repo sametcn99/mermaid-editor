@@ -2,8 +2,10 @@
 <div id="preview">
   <div class="preview-container" tabindex="0" touch-action="none">
     <div id="preview-content">
-      <div class="mermaid">
-        <%- mermaidText %>
+      <div id="mermaid-container" class="mermaid">
+        <% if (typeof mermaidText !== 'undefined' && mermaidText) { %>
+          <%- mermaidText %>
+        <% } %>
       </div>
     </div>
   </div>

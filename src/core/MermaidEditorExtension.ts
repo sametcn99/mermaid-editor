@@ -83,7 +83,12 @@ export class MermaidEditorExtension {
 
       webviewPanel.webview.options = {
         enableScripts: true,
-        localResourceRoots: [localResourceRoot, fontAwesomeRoot, mermaidRoot, monacoEditorRoot],
+        localResourceRoots: [
+          localResourceRoot,
+          fontAwesomeRoot,
+          mermaidRoot,
+          monacoEditorRoot,
+        ],
       };
 
       // Get URIs for resources
@@ -100,7 +105,8 @@ export class MermaidEditorExtension {
       const mermaidUri = webviewPanel.webview.asWebviewUri(
         vscode.Uri.joinPath(mermaidRoot, "mermaid.min.js"),
       );
-      const monacoEditorRootUri = webviewPanel.webview.asWebviewUri(monacoEditorRoot);
+      const monacoEditorRootUri =
+        webviewPanel.webview.asWebviewUri(monacoEditorRoot);
 
       // Set initial content with resource URIs
       const text = document.getText().trim();
@@ -112,8 +118,10 @@ export class MermaidEditorExtension {
         scriptUri: scriptUri.toString(),
         mermaidUri: mermaidUri.toString(),
         monacoEditorRoot: monacoEditorRootUri.toString(),
-        monacoEditorUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.js',
-        monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.css',
+        monacoEditorUri:
+          monacoEditorRootUri.toString() + "/vs/editor/editor.main.js",
+        monacoEditorCssUri:
+          monacoEditorRootUri.toString() + "/vs/editor/editor.main.css",
       });
 
       // Handle document changes
@@ -131,8 +139,10 @@ export class MermaidEditorExtension {
                 scriptUri: scriptUri.toString(),
                 mermaidUri: mermaidUri.toString(),
                 monacoEditorRoot: monacoEditorRootUri.toString(),
-                monacoEditorUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.js',
-                monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.css',
+                monacoEditorUri:
+                  monacoEditorRootUri.toString() + "/vs/editor/editor.main.js",
+                monacoEditorCssUri:
+                  monacoEditorRootUri.toString() + "/vs/editor/editor.main.css",
               },
             );
           }
@@ -146,7 +156,7 @@ export class MermaidEditorExtension {
             edit.replace(
               document.uri,
               new vscode.Range(0, 0, document.lineCount, 0),
-              message.text
+              message.text,
             );
             await vscode.workspace.applyEdit(edit);
             break;

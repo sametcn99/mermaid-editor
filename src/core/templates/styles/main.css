@@ -97,6 +97,10 @@ body {
   cursor: default;
   transform-origin: center center;
   transform: scale(1); /* Varsayılan zoom %100 */
+  will-change: transform;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
 }
 
 .preview-container:active {
@@ -109,6 +113,29 @@ body {
   will-change: transform;
   pointer-events: none;
   transform: scale(1); /* Varsayılan zoom %100 */
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+#mermaid-container.mermaid {
+  display: inline-block;
+  background: transparent;
+  pointer-events: auto;
+  min-width: 50px;
+  min-height: 50px;
+  position: relative;
+}
+
+#mermaid-container.mermaid svg {
+  display: block;
+  max-width: none;
+  max-height: none;
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+  image-rendering: optimizeQuality;
+  transform-origin: 0 0;
+  width: 100%;
+  height: 100%;
 }
 
 .mermaid {
@@ -121,6 +148,10 @@ body {
   display: block;
   max-width: none;
   max-height: none;
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+  image-rendering: optimizeQuality;
+  transform-origin: 0 0;
 }
 
 .zoom-level {

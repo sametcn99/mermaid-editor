@@ -9,6 +9,22 @@ function initializePreview() {
   const previewContainer = document.querySelector(".preview-container");
   if (!previewContainer) return;
 
+  // SVG rendering kalitesi için style ekleyelim
+  const style = document.createElement("style");
+  style.textContent = `
+    .preview-container {
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .preview-content svg {
+      shape-rendering: geometricPrecision;
+      text-rendering: optimizeLegibility;
+      image-rendering: optimizeQuality;
+    }
+  `;
+  document.head.appendChild(style);
+
   // Create cursor highlight element
   cursorHighlight = document.createElement("div");
   cursorHighlight.className = "cursor-highlight";
@@ -111,7 +127,8 @@ function handleZoom(e) {
   e.preventDefault();
   e.stopPropagation();
 
-  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  // Daha hassas zoom için delta değerini ayarlayalım
+  const delta = e.deltaY > 0 ? -0.05 : 0.05;
   const rect = e.currentTarget.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
@@ -145,7 +162,19 @@ function updateTransform(x, y) {
   lastTransform.y = y;
 
   requestAnimationFrame(() => {
+    // SVG kalitesini korumak için transform-style ve backface-visibility ekleyelim
+    previewContent.style.transformStyle = "preserve-3d";
+    previewContent.style.backfaceVisibility = "hidden";
     previewContent.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${currentZoom})`;
+
+    // SVG render kalitesini artırmak için shape-rendering özelliğini ayarlayalım
+    const svg = previewContent.querySelector("svg");
+    if (svg) {
+      svg.style.shapeRendering = "geometricPrecision";
+      svg.style.textRendering = "optimizeLegibility";
+      // SVG'nin pikselleşmesini önlemek için image-rendering özelliğini ayarlayalım
+      svg.style.imageRendering = "optimizeQuality";
+    }
   });
 }
 
@@ -189,17 +218,28 @@ function fitToScreen() {
 
   if (!mermaidSvg || !previewContainer) return;
 
-  const containerRect = previewContainer.getBoundingClientRect();
-  const contentRect = mermaidSvg.getBoundingClientRect();
+  try {
+    const containerRect = previewContainer.getBoundingClientRect();
 
-  const scaleX =
-    (containerRect.width * 0.9) / (contentRect.width / currentZoom);
-  const scaleY =
-    (containerRect.height * 0.9) / (contentRect.height / currentZoom);
-  currentZoom = Math.min(scaleX, scaleY, 3);
+    // SVG boyutlarını doğrudan al
+    const svgWidth = mermaidSvg.getAttribute("width") || mermaidSvg.clientWidth;
+    const svgHeight =
+      mermaidSvg.getAttribute("height") || mermaidSvg.clientHeight;
 
-  centerContent();
-  updateZoomLevel();
+    if (!svgWidth || !svgHeight) {
+      console.warn("SVG boyutları alınamadı");
+      return;
+    }
+
+    const scaleX = (containerRect.width * 0.9) / (svgWidth / currentZoom);
+    const scaleY = (containerRect.height * 0.9) / (svgHeight / currentZoom);
+    currentZoom = Math.min(scaleX, scaleY, 3);
+
+    centerContent();
+    updateZoomLevel();
+  } catch (error) {
+    console.error("Fit to screen error:", error);
+  }
 }
 
 function centerContent() {
@@ -209,15 +249,28 @@ function centerContent() {
 
   if (!mermaidSvg || !previewContainer || !previewContent) return;
 
-  const containerRect = previewContainer.getBoundingClientRect();
-  const contentRect = mermaidSvg.getBoundingClientRect();
+  try {
+    const containerRect = previewContainer.getBoundingClientRect();
 
-  lastTransform = {
-    x: (containerRect.width - contentRect.width * currentZoom) / 2,
-    y: (containerRect.height - contentRect.height * currentZoom) / 2,
-  };
+    // SVG boyutlarını doğrudan al
+    const svgWidth = mermaidSvg.getAttribute("width") || mermaidSvg.clientWidth;
+    const svgHeight =
+      mermaidSvg.getAttribute("height") || mermaidSvg.clientHeight;
 
-  updateTransform(lastTransform.x, lastTransform.y);
+    if (!svgWidth || !svgHeight) {
+      console.warn("SVG boyutları alınamadı");
+      return;
+    }
+
+    lastTransform = {
+      x: (containerRect.width - svgWidth * currentZoom) / 2,
+      y: (containerRect.height - svgHeight * currentZoom) / 2,
+    };
+
+    updateTransform(lastTransform.x, lastTransform.y);
+  } catch (error) {
+    console.error("Center content error:", error);
+  }
 }
 
 function updateZoomLevel() {
@@ -274,6 +327,103 @@ function highlightPosition(line, column) {
         highlight.style.opacity = "0.7";
       }, 500);
     });
+  }
+}
+
+function ensureValidSVG(svgElement) {
+  if (!svgElement) return false;
+
+  // SVG boyutlarını kontrol et
+  let width = svgElement.getAttribute("width");
+  let height = svgElement.getAttribute("height");
+
+  // Eğer width/height attribute'ları yoksa viewBox'tan al
+  if (!width || !height) {
+    const viewBox = svgElement.getAttribute("viewBox");
+    if (viewBox) {
+      const [, , vbWidth, vbHeight] = viewBox.split(" ").map(Number);
+      if (!isNaN(vbWidth) && !isNaN(vbHeight)) {
+        width = vbWidth;
+        height = vbHeight;
+        svgElement.setAttribute("width", width);
+        svgElement.setAttribute("height", height);
+      }
+    }
+  }
+
+  // Hala boyutlar yoksa varsayılan değerler ata
+  if (!width || !height) {
+    width = svgElement.clientWidth || 800;
+    height = svgElement.clientHeight || 600;
+    svgElement.setAttribute("width", width);
+    svgElement.setAttribute("height", height);
+  }
+
+  // ViewBox'ı güncelle
+  if (!svgElement.getAttribute("viewBox")) {
+    svgElement.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  }
+
+  // SVG özellikleri ayarla
+  svgElement.style.display = "block";
+  svgElement.style.maxWidth = "none";
+  svgElement.style.maxHeight = "none";
+  svgElement.style.shapeRendering = "geometricPrecision";
+  svgElement.style.textRendering = "optimizeLegibility";
+  svgElement.style.imageRendering = "optimizeQuality";
+  svgElement.style.transformOrigin = "0 0";
+
+  return true;
+}
+
+function updateDiagram(text) {
+  if (!text) return;
+
+  window.mermaidText = text;
+  const previewContent = document.getElementById("preview-content");
+  const mermaidDiv = previewContent.querySelector(".mermaid");
+
+  if (!mermaidDiv) {
+    console.error("Mermaid div bulunamadı");
+    return;
+  }
+
+  const currentTransform = previewContent.style.transform;
+
+  try {
+    mermaidDiv.innerHTML = text;
+
+    mermaid
+      .render("mermaid-diagram", text)
+      .then(({ svg }) => {
+        try {
+          mermaidDiv.innerHTML = svg;
+
+          const svgElement = mermaidDiv.querySelector("svg");
+          if (svgElement && ensureValidSVG(svgElement)) {
+            // SVG başarıyla hazırlandı, ekran pozisyonunu ayarla
+            if (!currentTransform) {
+              setTimeout(() => {
+                if (window.fitToScreen) {
+                  window.fitToScreen();
+                }
+              }, 100);
+            }
+          } else {
+            throw new Error("SVG element geçersiz veya bulunamadı");
+          }
+        } catch (renderError) {
+          console.error("SVG render hatası:", renderError);
+          mermaidDiv.innerHTML = `<div class="error">Diagram render hatası: ${renderError.message}</div>`;
+        }
+      })
+      .catch((err) => {
+        console.error("Mermaid render hatası:", err);
+        mermaidDiv.innerHTML = `<div class="error">Syntax hatası: ${err.message}</div>`;
+      });
+  } catch (err) {
+    console.error("Genel hata:", err);
+    mermaidDiv.innerHTML = `<div class="error">Beklenmeyen hata: ${err.message}</div>`;
   }
 }
 

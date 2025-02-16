@@ -83,7 +83,7 @@ export class WebviewContentProvider {
           mermaidUri: resources?.mermaidUri, // Mermaid URI'sini template'e gönder
           monacoEditorRoot: resources.monacoEditorRoot,
           monacoEditorUri: resources?.monacoEditorUri,
-          monacoEditorCssUri: resources?.monacoEditorCssUri
+          monacoEditorCssUri: resources?.monacoEditorCssUri,
         },
         {
           root: this.templatePath, // Set the root directory for includes
