@@ -43,6 +43,7 @@
         display: flex;
         flex: 1;
         overflow: hidden;
+        position: relative;
       }
       #editor {
         width: 50%;
@@ -51,6 +52,32 @@
         background-color: transparent;
         color: var(--vscode-editor-foreground);
         resize: none;
+        transition:
+          width 0.3s ease,
+          margin-left 0.3s ease;
+      }
+      #editor.hidden {
+        margin-left: -50%;
+      }
+      #preview {
+        transition: width 0.3s ease;
+        width: 50%;
+      }
+      .preview-expanded {
+        width: 100% !important;
+      }
+      .toggle-editor {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .toggle-editor-icon {
+        width: 16px;
+        height: 16px;
+        transition: transform 0.3s ease;
+      }
+      .toggle-editor-icon.rotated {
+        transform: rotate(180deg);
       }
       #preview {
         width: 50%;
@@ -251,6 +278,25 @@
         setZoom(1);
       }
 
+      function toggleEditor() {
+        const editor = document.getElementById("editor");
+        const preview = document.getElementById("preview");
+        const icon = document.querySelector(".toggle-editor-icon");
+        const button = document.getElementById("toggleEditor");
+
+        editor.classList.toggle("hidden");
+        preview.classList.toggle("preview-expanded");
+        icon.classList.toggle("rotated");
+
+        const isHidden = editor.classList.contains("hidden");
+        button.setAttribute("title", isHidden ? "Show Editor" : "Hide Editor");
+
+        // Trigger resize event to ensure diagram fits properly
+        setTimeout(() => {
+          fitDiagram();
+        }, 300);
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         // Initialize mermaid with vscode theme detection
         mermaid.initialize({
@@ -357,6 +403,10 @@
                 e.preventDefault();
                 fitDiagram();
                 break;
+              case "\\":
+                e.preventDefault();
+                toggleEditor();
+                break;
             }
           }
         });
@@ -369,6 +419,22 @@
   </head>
   <body>
     <div class="toolbar">
+      <button
+        id="toggleEditor"
+        class="toggle-editor"
+        title="Hide Editor"
+        onclick="toggleEditor()"
+      >
+        <svg
+          class="toggle-editor-icon"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+        >
+          <path d="M5.7 13.7L5 13l4.6-4.6L5 3.7l.7-.7 5.3 5.3z" />
+        </svg>
+        Toggle Editor
+      </button>
       <button id="exportPNG">Export PNG</button>
       <button id="exportSVG">Export SVG</button>
       <button id="copyToClipboard">Copy</button>
