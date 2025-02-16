@@ -38,11 +38,16 @@ export class MermaidHead implements IHTMLComponent {
   private createInitScript(): HTMLScriptElement {
     const script = this.builder.createElement("script") as HTMLScriptElement;
     script.textContent = `
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: 'default',
-        securityLevel: 'loose',
-        logLevel: 'error',
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            logLevel: 'error',
+          });
+          mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+        }, 500);
       });
     `;
     return script;

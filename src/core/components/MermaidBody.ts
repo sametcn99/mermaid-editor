@@ -15,6 +15,7 @@ export class MermaidBody implements IHTMLComponent {
     const mermaidDiv = this.builder.createElement("div", { class: "mermaid" });
     mermaidDiv.textContent = this.mermaidText;
     body.appendChild(mermaidDiv);
+    
     return body;
   }
 }

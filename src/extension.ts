@@ -2,8 +2,6 @@ import * as vscode from "vscode";
 import { WebviewContentProvider } from "./core/WebviewContentProvider";
 
 export function activate(context: vscode.ExtensionContext) {
-  const provider = WebviewContentProvider.getInstance();
-
   // Register custom editor provider
   const customEditorProvider = vscode.window.registerCustomEditorProvider(
     "mermaid-editor",
@@ -13,8 +11,13 @@ export function activate(context: vscode.ExtensionContext) {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken,
       ) {
-        // Set initial content
-        webviewPanel.webview.html = provider.getContent(document.getText());
+        const provider = new WebviewContentProvider();
+
+        // Set initial content only if document has content
+        const text = document.getText().trim();
+        if (text) {
+          webviewPanel.webview.html = provider.getContent(text);
+        }
 
         // Add editor title menu item
         webviewPanel.webview.options = { enableScripts: true };
@@ -23,9 +26,8 @@ export function activate(context: vscode.ExtensionContext) {
         const changeDocumentSubscription =
           vscode.workspace.onDidChangeTextDocument((e) => {
             if (e.document.uri.toString() === document.uri.toString()) {
-              webviewPanel.webview.html = provider.getContent(
-                e.document.getText(),
-              );
+              const newText = e.document.getText().trim();
+              webviewPanel.webview.html = provider.getContent(newText);
             }
           });
 
@@ -37,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
     },
     {
       webviewOptions: {
-        retainContextWhenHidden: true,
+        retainContextWhenHidden: false, // Changed to false to prevent content retention
       },
       supportsMultipleEditorsPerDocument: false,
     },
