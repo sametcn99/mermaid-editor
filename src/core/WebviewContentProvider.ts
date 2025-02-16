@@ -1,8 +1,8 @@
-import * as vscode from "vscode";
-import * as ejs from "ejs";
-import * as path from "path";
-import * as fs from "fs";
-import { t } from "./utils/language";
+import * as vscode from 'vscode';
+import * as ejs from 'ejs';
+import * as path from 'path';
+import * as fs from 'fs';
+import { t } from './utils/language';
 
 interface ResourceUris {
   cssUri: string;
@@ -18,47 +18,39 @@ interface ResourceUris {
 
 export class WebviewContentProvider {
   private static instance: WebviewContentProvider;
-  private content: string = "";
+  private content: string = '';
   private templatePath: string;
   private readonly maxContentSize = 5 * 1024 * 1024; // 5MB limit
 
   constructor(context: vscode.ExtensionContext) {
-    this.templatePath = path.join(
-      context.extensionPath,
-      "src",
-      "core",
-      "templates",
-    );
+    this.templatePath = path.join(context.extensionPath, 'src', 'core', 'templates');
     if (!fs.existsSync(this.templatePath)) {
       throw new Error(`Template directory not found at: ${this.templatePath}`);
     }
   }
 
   public clearContent(): void {
-    this.content = "";
+    this.content = '';
   }
 
   public getContent(mermaidText: string, resources?: ResourceUris): string {
-    if (typeof mermaidText !== "string") {
-      throw new Error("Invalid input: mermaidText must be a string");
+    if (typeof mermaidText !== 'string') {
+      throw new Error('Invalid input: mermaidText must be a string');
     }
 
     if (mermaidText.length > this.maxContentSize) {
-      throw new Error("Content exceeds maximum size limit of 1MB");
+      throw new Error('Content exceeds maximum size limit of 1MB');
     }
 
     try {
-      const template = fs.readFileSync(
-        path.join(this.templatePath, "webview.ejs"),
-        "utf-8",
-      );
+      const template = fs.readFileSync(path.join(this.templatePath, 'webview.ejs'), 'utf-8');
       if (!template) {
-        throw new Error("Template file is empty");
+        throw new Error('Template file is empty');
       }
 
       // Ensure all required resources are available
       if (!resources?.monacoEditorRoot) {
-        throw new Error("Monaco Editor root path is required");
+        throw new Error('Monaco Editor root path is required');
       }
 
       this.content = ejs.render(
@@ -80,15 +72,13 @@ export class WebviewContentProvider {
         },
         {
           root: this.templatePath, // Set the root directory for includes
-          filename: path.join(this.templatePath, "webview.ejs"), // Set the filename for proper relative path resolution
-        },
+          filename: path.join(this.templatePath, 'webview.ejs'), // Set the filename for proper relative path resolution
+        }
       );
 
       return this.content;
     } catch (error) {
-      return this.renderError(
-        error instanceof Error ? error.message : "Unknown error",
-      );
+      return this.renderError(error instanceof Error ? error.message : 'Unknown error');
     }
   }
 
@@ -102,6 +92,6 @@ export class WebviewContentProvider {
   }
 
   public getCurrentContent(): string {
-    return this.content || "";
+    return this.content || '';
   }
 }

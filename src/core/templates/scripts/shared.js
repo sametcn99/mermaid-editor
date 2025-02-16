@@ -18,8 +18,8 @@ function debounce(func, wait) {
 // Diagram management
 function updateDiagram(text) {
   window.mermaidText = text;
-  const previewContent = document.getElementById("preview-content");
-  const mermaidDiv = previewContent.querySelector(".mermaid");
+  const previewContent = document.getElementById('preview-content');
+  const mermaidDiv = previewContent.querySelector('.mermaid');
 
   // Store current transform state
   const currentTransform = previewContent.style.transform;
@@ -29,7 +29,7 @@ function updateDiagram(text) {
 
   try {
     mermaid
-      .render("mermaid-diagram", text)
+      .render('mermaid-diagram', text)
       .then(({ svg }) => {
         mermaidDiv.innerHTML = svg;
 
@@ -42,7 +42,7 @@ function updateDiagram(text) {
           }, 50);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         mermaidDiv.innerHTML = `<div class="error">${err.message}</div>`;
       });
   } catch (err) {

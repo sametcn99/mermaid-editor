@@ -6,11 +6,11 @@ let lastTransform = { x: 0, y: 0 };
 let cursorHighlight = null;
 
 function initializePreview() {
-  const previewContainer = document.querySelector(".preview-container");
+  const previewContainer = document.querySelector('.preview-container');
   if (!previewContainer) return;
 
   // Add style for SVG rendering quality
-  const style = document.createElement("style");
+  const style = document.createElement('style');
   style.textContent = `
     .preview-container {
       backface-visibility: hidden;
@@ -26,50 +26,50 @@ function initializePreview() {
   document.head.appendChild(style);
 
   // Create cursor highlight element
-  cursorHighlight = document.createElement("div");
-  cursorHighlight.className = "cursor-highlight";
-  cursorHighlight.style.position = "absolute";
-  cursorHighlight.style.backgroundColor = "rgba(255, 255, 0, 0.3)";
-  cursorHighlight.style.pointerEvents = "none";
-  cursorHighlight.style.display = "none";
+  cursorHighlight = document.createElement('div');
+  cursorHighlight.className = 'cursor-highlight';
+  cursorHighlight.style.position = 'absolute';
+  cursorHighlight.style.backgroundColor = 'rgba(255, 255, 0, 0.3)';
+  cursorHighlight.style.pointerEvents = 'none';
+  cursorHighlight.style.display = 'none';
   previewContainer.appendChild(cursorHighlight);
 
   // Pan events using pointer events
-  previewContainer.addEventListener("pointerdown", startPan);
-  previewContainer.addEventListener("pointermove", doPan);
-  previewContainer.addEventListener("pointerup", endPan);
-  previewContainer.addEventListener("pointercancel", endPan);
-  previewContainer.addEventListener("pointerleave", endPan);
+  previewContainer.addEventListener('pointerdown', startPan);
+  previewContainer.addEventListener('pointermove', doPan);
+  previewContainer.addEventListener('pointerup', endPan);
+  previewContainer.addEventListener('pointercancel', endPan);
+  previewContainer.addEventListener('pointerleave', endPan);
 
   // Zoom event
-  previewContainer.addEventListener("wheel", handleZoom);
+  previewContainer.addEventListener('wheel', handleZoom);
 
   // Keyboard shortcuts
-  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener('keydown', handleKeyDown);
 
   // Listen for cursor position updates from the editor
-  window.addEventListener("message", (event) => {
-    if (event.data.type === "cursorPosition") {
+  window.addEventListener('message', event => {
+    if (event.data.type === 'cursorPosition') {
       highlightPosition(event.data.line, event.data.column);
     }
   });
 
   // Watch for content changes
   const observer = new MutationObserver(() => {
-    const svg = document.querySelector(".mermaid svg");
+    const svg = document.querySelector('.mermaid svg');
     if (svg) {
       // Set initial zoom to 100%
       resetView();
     }
   });
 
-  observer.observe(document.getElementById("preview-content"), {
+  observer.observe(document.getElementById('preview-content'), {
     childList: true,
     subtree: true,
   });
 
   // Set initial zoom to 100% when content loads
-  const previewContent = document.getElementById("preview-content");
+  const previewContent = document.getElementById('preview-content');
   if (previewContent) {
     resetView();
     centerContent();
@@ -77,7 +77,7 @@ function initializePreview() {
 }
 
 function startPan(e) {
-  if (e.button === 0 && (e.getModifierState("Space") || e.altKey)) {
+  if (e.button === 0 && (e.getModifierState('Space') || e.altKey)) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -86,7 +86,7 @@ function startPan(e) {
     lastY = e.clientY;
 
     const container = e.currentTarget;
-    container.style.cursor = "grabbing";
+    container.style.cursor = 'grabbing';
     container.setPointerCapture(e.pointerId);
   }
 }
@@ -114,7 +114,7 @@ function endPan(e) {
 
   isDragging = false;
   const container = e.currentTarget;
-  container.style.cursor = "default";
+  container.style.cursor = 'default';
 
   if (e.pointerId) {
     container.releasePointerCapture(e.pointerId);
@@ -137,7 +137,7 @@ function handleZoom(e) {
 }
 
 function zoomAt(mouseX, mouseY, delta) {
-  const previewContent = document.getElementById("preview-content");
+  const previewContent = document.getElementById('preview-content');
   const oldZoom = currentZoom;
   const newZoom = Math.max(0.1, Math.min(oldZoom + delta, 3));
 
@@ -155,7 +155,7 @@ function zoomAt(mouseX, mouseY, delta) {
 }
 
 function updateTransform(x, y) {
-  const previewContent = document.getElementById("preview-content");
+  const previewContent = document.getElementById('preview-content');
   if (!previewContent) return;
 
   lastTransform.x = x;
@@ -163,27 +163,27 @@ function updateTransform(x, y) {
 
   requestAnimationFrame(() => {
     // Add transform-style and backface-visibility to maintain SVG quality
-    previewContent.style.transformStyle = "preserve-3d";
-    previewContent.style.backfaceVisibility = "hidden";
+    previewContent.style.transformStyle = 'preserve-3d';
+    previewContent.style.backfaceVisibility = 'hidden';
     previewContent.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${currentZoom})`;
 
     // Set shape-rendering property to improve SVG render quality
-    const svg = previewContent.querySelector("svg");
+    const svg = previewContent.querySelector('svg');
     if (svg) {
-      svg.style.shapeRendering = "geometricPrecision";
-      svg.style.textRendering = "optimizeLegibility";
+      svg.style.shapeRendering = 'geometricPrecision';
+      svg.style.textRendering = 'optimizeLegibility';
       // Set image-rendering property to prevent SVG pixelation
-      svg.style.imageRendering = "optimizeQuality";
+      svg.style.imageRendering = 'optimizeQuality';
     }
   });
 }
 
 function handleKeyDown(e) {
   if (e.ctrlKey) {
-    if (e.key === "0") {
+    if (e.key === '0') {
       e.preventDefault();
       resetView();
-    } else if (e.key === "f") {
+    } else if (e.key === 'f') {
       e.preventDefault();
       fitToScreen();
     }
@@ -204,7 +204,7 @@ function resetView() {
   currentZoom = 1; // Always reset to 100%
   lastTransform = { x: 0, y: 0 };
 
-  const previewContent = document.getElementById("preview-content");
+  const previewContent = document.getElementById('preview-content');
   if (previewContent) {
     previewContent.style.transform = `translate(${lastTransform.x}px, ${lastTransform.y}px) scale(${currentZoom})`;
   }
@@ -213,8 +213,8 @@ function resetView() {
 }
 
 function fitToScreen() {
-  const previewContainer = document.querySelector(".preview-container");
-  const mermaidSvg = document.querySelector(".mermaid svg");
+  const previewContainer = document.querySelector('.preview-container');
+  const mermaidSvg = document.querySelector('.mermaid svg');
 
   if (!mermaidSvg || !previewContainer) return;
 
@@ -222,12 +222,11 @@ function fitToScreen() {
     const containerRect = previewContainer.getBoundingClientRect();
 
     // Get SVG dimensions directly
-    const svgWidth = mermaidSvg.getAttribute("width") || mermaidSvg.clientWidth;
-    const svgHeight =
-      mermaidSvg.getAttribute("height") || mermaidSvg.clientHeight;
+    const svgWidth = mermaidSvg.getAttribute('width') || mermaidSvg.clientWidth;
+    const svgHeight = mermaidSvg.getAttribute('height') || mermaidSvg.clientHeight;
 
     if (!svgWidth || !svgHeight) {
-      console.warn("Could not retrieve SVG dimensions");
+      console.warn('Could not retrieve SVG dimensions');
       return;
     }
 
@@ -238,14 +237,14 @@ function fitToScreen() {
     centerContent();
     updateZoomLevel();
   } catch (error) {
-    console.error("Fit to screen error:", error);
+    console.error('Fit to screen error:', error);
   }
 }
 
 function centerContent() {
-  const previewContainer = document.querySelector(".preview-container");
-  const mermaidSvg = document.querySelector(".mermaid svg");
-  const previewContent = document.getElementById("preview-content");
+  const previewContainer = document.querySelector('.preview-container');
+  const mermaidSvg = document.querySelector('.mermaid svg');
+  const previewContent = document.getElementById('preview-content');
 
   if (!mermaidSvg || !previewContainer || !previewContent) return;
 
@@ -253,12 +252,11 @@ function centerContent() {
     const containerRect = previewContainer.getBoundingClientRect();
 
     // Get SVG dimensions directly
-    const svgWidth = mermaidSvg.getAttribute("width") || mermaidSvg.clientWidth;
-    const svgHeight =
-      mermaidSvg.getAttribute("height") || mermaidSvg.clientHeight;
+    const svgWidth = mermaidSvg.getAttribute('width') || mermaidSvg.clientWidth;
+    const svgHeight = mermaidSvg.getAttribute('height') || mermaidSvg.clientHeight;
 
     if (!svgWidth || !svgHeight) {
-      console.warn("Could not retrieve SVG dimensions");
+      console.warn('Could not retrieve SVG dimensions');
       return;
     }
 
@@ -269,31 +267,31 @@ function centerContent() {
 
     updateTransform(lastTransform.x, lastTransform.y);
   } catch (error) {
-    console.error("Center content error:", error);
+    console.error('Center content error:', error);
   }
 }
 
 function updateZoomLevel() {
-  const zoomLevel = document.querySelector(".zoom-level");
+  const zoomLevel = document.querySelector('.zoom-level');
   if (zoomLevel) {
     zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
   }
 }
 
 function highlightPosition(line, column) {
-  const previewContent = document.getElementById("preview-content");
+  const previewContent = document.getElementById('preview-content');
   if (!previewContent) return;
 
   // Clear previous highlight
-  const oldHighlights = document.querySelectorAll(".cursor-highlight");
-  oldHighlights.forEach((h) => h.remove());
+  const oldHighlights = document.querySelectorAll('.cursor-highlight');
+  oldHighlights.forEach(h => h.remove());
 
   // Create new highlight element
-  const highlight = document.createElement("div");
-  highlight.className = "cursor-highlight";
+  const highlight = document.createElement('div');
+  highlight.className = 'cursor-highlight';
 
   // Find the element in the line where the cursor is located
-  const elements = previewContent.querySelectorAll(".mermaid [id]");
+  const elements = previewContent.querySelectorAll('.mermaid [id]');
   let targetElement = null;
 
   for (const element of elements) {
@@ -311,20 +309,20 @@ function highlightPosition(line, column) {
     highlight.style.top = `${rect.top - previewRect.top}px`;
     highlight.style.width = `${rect.width}px`;
     highlight.style.height = `${rect.height}px`;
-    highlight.style.position = "absolute";
-    highlight.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
-    highlight.style.border = "2px solid rgba(255, 200, 0, 0.5)";
-    highlight.style.borderRadius = "3px";
-    highlight.style.pointerEvents = "none";
-    highlight.style.zIndex = "1000";
+    highlight.style.position = 'absolute';
+    highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+    highlight.style.border = '2px solid rgba(255, 200, 0, 0.5)';
+    highlight.style.borderRadius = '3px';
+    highlight.style.pointerEvents = 'none';
+    highlight.style.zIndex = '1000';
 
     previewContent.appendChild(highlight);
 
     // Make the highlight visible and gradually fade it out
     requestAnimationFrame(() => {
-      highlight.style.opacity = "1";
+      highlight.style.opacity = '1';
       setTimeout(() => {
-        highlight.style.opacity = "0.7";
+        highlight.style.opacity = '0.7';
       }, 500);
     });
   }
@@ -334,19 +332,19 @@ function ensureValidSVG(svgElement) {
   if (!svgElement) return false;
 
   // Check SVG dimensions
-  let width = svgElement.getAttribute("width");
-  let height = svgElement.getAttribute("height");
+  let width = svgElement.getAttribute('width');
+  let height = svgElement.getAttribute('height');
 
   // If width/height attributes are missing, get them from viewBox
   if (!width || !height) {
-    const viewBox = svgElement.getAttribute("viewBox");
+    const viewBox = svgElement.getAttribute('viewBox');
     if (viewBox) {
-      const [, , vbWidth, vbHeight] = viewBox.split(" ").map(Number);
+      const [, , vbWidth, vbHeight] = viewBox.split(' ').map(Number);
       if (!isNaN(vbWidth) && !isNaN(vbHeight)) {
         width = vbWidth;
         height = vbHeight;
-        svgElement.setAttribute("width", width);
-        svgElement.setAttribute("height", height);
+        svgElement.setAttribute('width', width);
+        svgElement.setAttribute('height', height);
       }
     }
   }
@@ -355,23 +353,23 @@ function ensureValidSVG(svgElement) {
   if (!width || !height) {
     width = svgElement.clientWidth || 800;
     height = svgElement.clientHeight || 600;
-    svgElement.setAttribute("width", width);
-    svgElement.setAttribute("height", height);
+    svgElement.setAttribute('width', width);
+    svgElement.setAttribute('height', height);
   }
 
   // Update ViewBox
-  if (!svgElement.getAttribute("viewBox")) {
-    svgElement.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  if (!svgElement.getAttribute('viewBox')) {
+    svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
   }
 
   // Set SVG properties
-  svgElement.style.display = "block";
-  svgElement.style.maxWidth = "none";
-  svgElement.style.maxHeight = "none";
-  svgElement.style.shapeRendering = "geometricPrecision";
-  svgElement.style.textRendering = "optimizeLegibility";
-  svgElement.style.imageRendering = "optimizeQuality";
-  svgElement.style.transformOrigin = "0 0";
+  svgElement.style.display = 'block';
+  svgElement.style.maxWidth = 'none';
+  svgElement.style.maxHeight = 'none';
+  svgElement.style.shapeRendering = 'geometricPrecision';
+  svgElement.style.textRendering = 'optimizeLegibility';
+  svgElement.style.imageRendering = 'optimizeQuality';
+  svgElement.style.transformOrigin = '0 0';
 
   return true;
 }
@@ -380,11 +378,11 @@ function updateDiagram(text) {
   if (!text) return;
 
   window.mermaidText = text;
-  const previewContent = document.getElementById("preview-content");
-  const mermaidDiv = previewContent.querySelector(".mermaid");
+  const previewContent = document.getElementById('preview-content');
+  const mermaidDiv = previewContent.querySelector('.mermaid');
 
   if (!mermaidDiv) {
-    console.error("Mermaid div not found");
+    console.error('Mermaid div not found');
     return;
   }
 
@@ -394,12 +392,12 @@ function updateDiagram(text) {
     mermaidDiv.innerHTML = text;
 
     mermaid
-      .render("mermaid-diagram", text)
+      .render('mermaid-diagram', text)
       .then(({ svg }) => {
         try {
           mermaidDiv.innerHTML = svg;
 
-          const svgElement = mermaidDiv.querySelector("svg");
+          const svgElement = mermaidDiv.querySelector('svg');
           if (svgElement && ensureValidSVG(svgElement)) {
             // SVG successfully prepared, set screen position
             if (!currentTransform) {
@@ -410,28 +408,27 @@ function updateDiagram(text) {
               }, 100);
             }
           } else {
-            throw new Error("Invalid or missing SVG element");
+            throw new Error('Invalid or missing SVG element');
           }
         } catch (renderError) {
-          console.error("SVG render error:", renderError);
+          console.error('SVG render error:', renderError);
           mermaidDiv.innerHTML = `<div class="error">Diagram render error: ${renderError.message}</div>`;
         }
       })
-      .catch((err) => {
-        console.error("Mermaid render error:", err);
+      .catch(err => {
+        console.error('Mermaid render error:', err);
         mermaidDiv.innerHTML = `<div class="error">Syntax error: ${err.message}</div>`;
       });
   } catch (err) {
-    console.error("General error:", err);
+    console.error('General error:', err);
     mermaidDiv.innerHTML = `<div class="error">Unexpected error: ${err.message}</div>`;
   }
 }
 
 // Initialize preview when DOM is loaded
-document.addEventListener("DOMContentLoaded", initializePreview);
+document.addEventListener('DOMContentLoaded', initializePreview);
 
 // Export functions for toolbar
-window.zoomDiagram = (delta) =>
-  zoomAt(window.innerWidth / 4, window.innerHeight / 2, delta);
+window.zoomDiagram = delta => zoomAt(window.innerWidth / 4, window.innerHeight / 2, delta);
 window.resetView = resetView;
 window.fitToScreen = fitToScreen;
