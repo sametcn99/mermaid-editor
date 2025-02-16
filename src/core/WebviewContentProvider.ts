@@ -9,8 +9,8 @@ interface ResourceUris {
   fontAwesomeCssUri: string;
   webfontsUri: string;
   cspSource: string;
-  scriptUri: string; // Add scriptUri to the interface
-  mermaidUri: string; // Mermaid.js URI'sini ekledik
+  scriptUri: string;
+  mermaidUri: string;
   monacoEditorRoot: string;
   monacoEditorUri: string;
   monacoEditorCssUri: string;
@@ -20,7 +20,7 @@ export class WebviewContentProvider {
   private static instance: WebviewContentProvider;
   private content: string = "";
   private templatePath: string;
-  private readonly maxContentSize = 1024 * 1024; // 1MB limit
+  private readonly maxContentSize = 5 * 1024 * 1024; // 5MB limit
 
   constructor(context: vscode.ExtensionContext) {
     this.templatePath = path.join(
@@ -73,7 +73,7 @@ export class WebviewContentProvider {
           webfontsUri: resources?.webfontsUri,
           cspSource: resources?.cspSource,
           scriptUri: resources?.scriptUri, // Pass scriptUri to template
-          mermaidUri: resources?.mermaidUri, // Mermaid URI'sini template'e gönder
+          mermaidUri: resources?.mermaidUri, // Pass mermaidUri to template
           monacoEditorRoot: resources.monacoEditorRoot,
           monacoEditorUri: resources?.monacoEditorUri,
           monacoEditorCssUri: resources?.monacoEditorCssUri,

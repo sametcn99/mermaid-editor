@@ -25,7 +25,7 @@
 
       document.addEventListener("DOMContentLoaded", async () => {
         try {
-          // Mermaid'i yapılandır
+          // Configure Mermaid
           await mermaid.initialize({
             startOnLoad: false,
             securityLevel: 'loose',
@@ -49,12 +49,12 @@
             }
           });
 
-          // İlk diagram render
+          // Initial diagram render
           if (window.mermaidText) {
             await updateDiagram(window.mermaidText);
           }
 
-          // Event listener'ları ekle
+          // Add event listeners
           window.addEventListener("message", async (event) => {
             const message = event.data;
             try {
