@@ -12,12 +12,10 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "mermaid-editor.helloWorld",
-        "title": "Hello World"
-      }
-    ],
+    "commands": [],
+    "menus": {
+      "editor/title": []
+    },
     "customEditors": [
       {
         "viewType": "mermaid-editor",
