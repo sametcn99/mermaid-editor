@@ -5,45 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mermaid Editor</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
     <style>
       body {
-        padding: 10px;
+        padding: 0;
         margin: 0;
         display: flex;
         flex-direction: column;
         height: 100vh;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
       }
       .toolbar {
-        padding: 10px;
+        padding: 8px 16px;
         background-color: var(--vscode-editor-background);
         border-bottom: 1px solid var(--vscode-panel-border);
         display: flex;
-        gap: 10px;
+        gap: 8px;
         align-items: center;
+        flex-wrap: wrap;
       }
       .toolbar button {
+        display: inline-flex;
+        align-items: center;
         padding: 6px 12px;
         background: var(--vscode-button-background);
         color: var(--vscode-button-foreground);
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        font-size: 13px;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+        white-space: nowrap;
+      }
+      .toolbar button i {
+        margin-right: 8px;
+        font-size: 14px;
       }
       .toolbar button:hover {
         background: var(--vscode-button-hoverBackground);
       }
-      .toolbar select {
-        padding: 4px 8px;
-        background: var(--vscode-dropdown-background);
-        color: var(--vscode-dropdown-foreground);
-        border: 1px solid var(--vscode-dropdown-border);
-        border-radius: 4px;
+      .toolbar button:active {
+        transform: translateY(1px);
+      }
+      .toolbar-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 0 8px;
+        border-right: 1px solid var(--vscode-panel-border);
+      }
+      .toolbar-group:last-child {
+        border-right: none;
       }
       .content-container {
         display: flex;
         flex: 1;
         overflow: hidden;
         position: relative;
+        background: var(--vscode-editor-background);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
       #editor {
         width: 50%;
@@ -52,41 +79,37 @@
         background-color: transparent;
         color: var(--vscode-editor-foreground);
         resize: none;
-        transition:
-          width 0.3s ease,
-          margin-left 0.3s ease;
+        padding: 16px;
+        font-family: "Consolas", "Monaco", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 1;
+        visibility: visible;
+      }
+      #editor:focus {
+        outline: none;
       }
       #editor.hidden {
-        margin-left: -50%;
-      }
-      #preview {
-        transition: width 0.3s ease;
-        width: 50%;
-      }
-      .preview-expanded {
-        width: 100% !important;
-      }
-      .toggle-editor {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-      .toggle-editor-icon {
-        width: 16px;
-        height: 16px;
-        transition: transform 0.3s ease;
-      }
-      .toggle-editor-icon.rotated {
-        transform: rotate(180deg);
+        width: 0;
+        padding: 0;
+        margin: 0;
+        border: none;
+        opacity: 0;
+        visibility: hidden;
       }
       #preview {
         width: 50%;
         height: 100%;
-        padding: 20px;
+        padding: 24px;
         box-sizing: border-box;
         overflow: hidden;
         position: relative;
         cursor: grab;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #preview.preview-expanded {
+        width: 100%;
       }
       #preview.grabbing {
         cursor: grabbing;
@@ -94,56 +117,106 @@
       .preview-container {
         position: absolute;
         transform-origin: center center;
-        transition: transform 0.1s ease;
+        transition: transform 0.15s ease-out;
       }
       .zoom-level {
         position: absolute;
-        bottom: 10px;
-        right: 10px;
+        bottom: 16px;
+        right: 16px;
         background: var(--vscode-editor-background);
-        padding: 5px 10px;
+        padding: 6px 12px;
         border-radius: 4px;
-        opacity: 0.8;
+        opacity: 0.9;
         font-size: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+      .keyboard-shortcuts {
+        position: absolute;
+        bottom: 60px;
+        right: 16px;
+        background: var(--vscode-editor-background);
+        padding: 12px;
+        border-radius: 6px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        line-height: 1.6;
+      }
+      #preview:hover .keyboard-shortcuts {
+        opacity: 0.9;
       }
       .context-menu {
         position: fixed;
         background: var(--vscode-menu-background);
         border: 1px solid var(--vscode-menu-border);
         border-radius: 4px;
-        padding: 5px 0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        padding: 4px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         z-index: 1000;
       }
       .context-menu-item {
-        padding: 6px 12px;
+        padding: 8px 16px;
         cursor: pointer;
         color: var(--vscode-menu-foreground);
         display: flex;
         align-items: center;
         gap: 8px;
+        font-size: 13px;
+        transition: background 0.1s;
       }
       .context-menu-item:hover {
         background: var(--vscode-menu-selectionBackground);
-      }
-      .keyboard-shortcuts {
-        position: absolute;
-        bottom: 40px;
-        right: 10px;
-        background: var(--vscode-editor-background);
-        padding: 8px;
-        border-radius: 4px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 12px;
-      }
-      #preview:hover .keyboard-shortcuts {
-        opacity: 0.8;
       }
       .mermaid {
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+      /* Add styles to ensure proper cursor behavior */
+      .mermaid * {
+        cursor: default !important;
+      }
+      #preview.grabbing * {
+        cursor: grabbing !important;
+      }
+      .fas.fa-chevron-left {
+        transition: transform 0.3s ease;
+      }
+      .fas.fa-chevron-left.rotated {
+        transform: rotate(180deg);
+      }
+      .toggle-editor {
+        position: relative;
+        min-width: 120px;
+        justify-content: space-between;
+        padding-right: 14px !important;
+      }
+
+      .toggle-editor .fas {
+        position: absolute;
+        left: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .toggle-editor span {
+        margin-left: 16px;
+      }
+
+      #editor.hidden + #preview {
+        width: 100%;
+      }
+
+      .content-container {
+        position: relative;
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        background: var(--vscode-editor-background);
+      }
+
+      .toggle-editor i {
+        transform-origin: center;
       }
     </style>
     <script>
@@ -281,19 +354,27 @@
       function toggleEditor() {
         const editor = document.getElementById("editor");
         const preview = document.getElementById("preview");
-        const icon = document.querySelector(".toggle-editor-icon");
         const button = document.getElementById("toggleEditor");
+        const icon = button.querySelector(".fas");
 
         editor.classList.toggle("hidden");
-        preview.classList.toggle("preview-expanded");
         icon.classList.toggle("rotated");
 
         const isHidden = editor.classList.contains("hidden");
         button.setAttribute("title", isHidden ? "Show Editor" : "Hide Editor");
 
-        // Trigger resize event to ensure diagram fits properly
+        // Update the button text
+        button.innerHTML = `
+          <i class="fas fa-chevron-left${isHidden ? " rotated" : ""}"></i>
+          <span>${isHidden ? "Show Editor" : "Hide Editor"}</span>
+        `;
+
+        // Trigger resize and refit after animation
         setTimeout(() => {
-          fitDiagram();
+          window.dispatchEvent(new Event("resize"));
+          if (typeof fitDiagram === "function") {
+            fitDiagram();
+          }
         }, 300);
       }
 
@@ -411,6 +492,19 @@
           }
         });
 
+        // Add toggle editor button listener
+        document
+          .getElementById("toggleEditor")
+          .addEventListener("click", toggleEditor);
+
+        // Add keyboard shortcut for toggle
+        document.addEventListener("keydown", (e) => {
+          if (e.ctrlKey && e.key === "b") {
+            e.preventDefault();
+            toggleEditor();
+          }
+        });
+
         // Initial diagram setup
         updateDiagram(mermaidText);
         centerDiagram();
@@ -419,32 +513,52 @@
   </head>
   <body>
     <div class="toolbar">
-      <button
-        id="toggleEditor"
-        class="toggle-editor"
-        title="Hide Editor"
-        onclick="toggleEditor()"
-      >
-        <svg
-          class="toggle-editor-icon"
-          viewBox="0 0 16 16"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-        >
-          <path d="M5.7 13.7L5 13l4.6-4.6L5 3.7l.7-.7 5.3 5.3z" />
-        </svg>
-        Toggle Editor
-      </button>
-      <button id="exportPNG">Export PNG</button>
-      <button id="exportSVG">Export SVG</button>
-      <button id="copyToClipboard">Copy</button>
-      <button id="format">Format</button>
-      <button id="zoomIn">Zoom In</button>
-      <button id="zoomOut">Zoom Out</button>
-      <button id="resetZoom">Reset Zoom</button>
+      <div class="toolbar-group">
+        <button id="toggleEditor" class="toggle-editor" title="Hide Editor">
+          <i class="fas fa-chevron-left"></i>
+          <span>Hide Editor</span>
+        </button>
+      </div>
+      <div class="toolbar-group">
+        <button id="exportPNG" title="Export as PNG">
+          <i class="fas fa-file-image"></i>
+          PNG
+        </button>
+        <button id="exportSVG" title="Export as SVG">
+          <i class="fas fa-code"></i>
+          SVG
+        </button>
+        <button id="copyToClipboard" title="Copy to Clipboard">
+          <i class="fas fa-copy"></i>
+          Copy
+        </button>
+      </div>
+      <div class="toolbar-group">
+        <button id="format" title="Format Diagram Code">
+          <i class="fas fa-align-left"></i>
+          Format
+        </button>
+      </div>
+      <div class="toolbar-group">
+        <button
+          id="zoomIn"
+          class="fas fa-search-plus"
+          title="Zoom In (Ctrl + Mouse Wheel Up)"
+        ></button>
+        <button
+          id="zoomOut"
+          class="fas fa-search-minus"
+          title="Zoom Out (Ctrl + Mouse Wheel Down)"
+        ></button>
+        <button
+          id="resetZoom"
+          class="fas fa-expand"
+          title="Reset Zoom (Ctrl + 0)"
+        ></button>
+      </div>
     </div>
     <div class="content-container">
-      <textarea id="editor"></textarea>
+      <textarea id="editor" spellcheck="false"></textarea>
       <div id="preview"></div>
     </div>
   </body>
