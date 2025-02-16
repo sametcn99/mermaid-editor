@@ -7,6 +7,7 @@ import { t } from "./utils/language";
 interface ResourceUris {
   cssUri: string;
   fontAwesomeCssUri: string;
+  webfontsUri: string;
   cspSource: string;
   scriptUri: string; // Add scriptUri to the interface
 }
@@ -67,6 +68,7 @@ export class WebviewContentProvider {
           errorHandler: this.handleError.bind(this),
           cssUri: resources?.cssUri,
           fontAwesomeCssUri: resources?.fontAwesomeCssUri,
+          webfontsUri: resources?.webfontsUri,
           cspSource: resources?.cspSource,
           scriptUri: resources?.scriptUri, // Pass scriptUri to template
         },

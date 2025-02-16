@@ -5,12 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'none'; img-src <%= cspSource %> https: data:; script-src <%= cspSource %> 'unsafe-inline' https://cdn.jsdelivr.net 'unsafe-eval'; style-src <%= cspSource %> 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src <%= cspSource %> data:;"
+    content="default-src 'none'; img-src <%= cspSource %> https: data:; script-src <%= cspSource %> 'unsafe-inline' https://cdn.jsdelivr.net 'unsafe-eval'; style-src <%= cspSource %> https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; font-src <%= cspSource %> <%= webfontsUri %> data: 'self';"
   />
   <title><%- t('Mermaid Editor') %></title>
 
   <!-- Load styles -->
   <link rel="stylesheet" href="<%= cssUri %>" />
+  <style>
+    /* Update FontAwesome font path to use webfontsUri */
+    @font-face {
+      font-family: 'Font Awesome 6 Free';
+      font-style: normal;
+      font-weight: 900;
+      font-display: block;
+      src: url("<%= webfontsUri %>/webfonts/fa-solid-900.woff2") format("woff2");
+    }
+    .fas {
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+    }
+  </style>
   <link rel="stylesheet" href="<%= fontAwesomeCssUri %>" />
 
   <!-- Load Monaco Editor from CDN -->

@@ -62,9 +62,16 @@ export class MermaidEditorExtension {
         "core",
         "templates",
       );
+      const fontAwesomeRoot = vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "node_modules",
+        "@fortawesome",
+        "fontawesome-free",
+      );
+
       webviewPanel.webview.options = {
         enableScripts: true,
-        localResourceRoots: [localResourceRoot],
+        localResourceRoots: [localResourceRoot, fontAwesomeRoot],
       };
 
       // Get URIs for resources
@@ -72,17 +79,9 @@ export class MermaidEditorExtension {
         vscode.Uri.joinPath(localResourceRoot, "styles", "main.css"),
       );
       const fontAwesomeCssUri = webviewPanel.webview.asWebviewUri(
-        vscode.Uri.file(
-          path.join(
-            this.context.extensionPath,
-            "node_modules",
-            "@fortawesome",
-            "fontawesome-free",
-            "css",
-            "all.min.css",
-          ),
-        ),
+        vscode.Uri.joinPath(fontAwesomeRoot, "css", "all.min.css"),
       );
+      const webfontsUri = webviewPanel.webview.asWebviewUri(fontAwesomeRoot);
       const scriptUri = webviewPanel.webview.asWebviewUri(
         vscode.Uri.joinPath(localResourceRoot, "scripts"),
       );
@@ -92,6 +91,7 @@ export class MermaidEditorExtension {
       webviewPanel.webview.html = this.webviewProvider.getContent(text, {
         cssUri: cssUri.toString(),
         fontAwesomeCssUri: fontAwesomeCssUri.toString(),
+        webfontsUri: webfontsUri.toString(),
         cspSource: webviewPanel.webview.cspSource,
         scriptUri: scriptUri.toString(),
       });
@@ -106,6 +106,7 @@ export class MermaidEditorExtension {
               {
                 cssUri: cssUri.toString(),
                 fontAwesomeCssUri: fontAwesomeCssUri.toString(),
+                webfontsUri: webfontsUri.toString(),
                 cspSource: webviewPanel.webview.cspSource,
                 scriptUri: scriptUri.toString(),
               },

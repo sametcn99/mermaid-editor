@@ -45,14 +45,6 @@ function initializeToolbar() {
       window.resetView();
     }
   });
-
-  // Theme selection
-  document.getElementById("themeSelect")?.addEventListener("change", (e) => {
-    window.vscode.postMessage({
-      command: "theme-change",
-      theme: e.target.value,
-    });
-  });
 }
 
 document.addEventListener("DOMContentLoaded", initializeToolbar);
