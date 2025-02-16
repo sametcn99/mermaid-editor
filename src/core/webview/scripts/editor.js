@@ -192,10 +192,18 @@ async function initializeEditor() {
                 : 'vs',
           inherit: true,
           rules: [
-            { token: 'keyword', foreground: '569CD6', fontStyle: 'bold' },
+            {
+              token: 'keyword',
+              foreground: '569CD6',
+              fontStyle: 'bold',
+            },
             { token: 'arrow', foreground: '00B7C3' },
             { token: 'string', foreground: 'CE9178' },
-            { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+            {
+              token: 'comment',
+              foreground: '6A9955',
+              fontStyle: 'italic',
+            },
             { token: 'identifier', foreground: '4EC9B0' },
             { token: '@brackets', foreground: 'FFD700' },
           ],

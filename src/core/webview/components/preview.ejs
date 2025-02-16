@@ -3,9 +3,7 @@
   <div class="preview-container" tabindex="0" touch-action="none">
     <div id="preview-content">
       <div id="mermaid-container" class="mermaid">
-        <% if (typeof mermaidText !== 'undefined' && mermaidText) { %>
-          <%- mermaidText %>
-        <% } %>
+        <% if (typeof mermaidText !== 'undefined' && mermaidText) { %> <%- mermaidText %> <% } %>
       </div>
     </div>
   </div>
@@ -22,9 +20,9 @@
     </button>
   </div>
   <div class="keyboard-shortcuts">
-    <%- t('Ctrl + Wheel: Zoom') %><br>
-    <%- t('Alt + Drag or Space + Drag: Pan') %><br>
-    <%- t('Ctrl + 0: Reset View') %><br>
+    <%- t('Ctrl + Wheel: Zoom') %><br />
+    <%- t('Alt + Drag or Space + Drag: Pan') %><br />
+    <%- t('Ctrl + 0: Reset View') %><br />
     <%- t('Ctrl + F: Fit') %>
   </div>
 </div>

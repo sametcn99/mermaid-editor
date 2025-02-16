@@ -1,4 +1,3 @@
-<!-- Head.ejs -->
 <%# Head Component %>
 <head>
   <meta charset="UTF-8" />
@@ -18,7 +17,7 @@
       font-style: normal;
       font-weight: 900;
       font-display: block;
-      src: url("<%= webfontsUri %>/webfonts/fa-solid-900.woff2") format("woff2");
+      src: url('<%= webfontsUri %>/webfonts/fa-solid-900.woff2') format('woff2');
     }
     .fas {
       font-family: 'Font Awesome 6 Free';
@@ -31,7 +30,7 @@
   <!-- Configure Monaco Editor environment -->
   <script>
     var monacoEditorRoot = '<%= monacoEditorRoot %>';
-    var require = { paths: { 'vs': monacoEditorRoot + '/vs' } };
+    var require = { paths: { vs: monacoEditorRoot + '/vs' } };
   </script>
 
   <!-- Load Monaco Editor -->
@@ -50,7 +49,7 @@
         `;
         const blob = new Blob([workerScript], { type: 'text/javascript' });
         return URL.createObjectURL(blob);
-      }
+      },
     };
   </script>
 
