@@ -5,12 +5,17 @@ require.config({
 
 function initializeEditor() {
   require(["vs/editor/editor.main"], function () {
+    // Get VS Code's current theme type
+    const vsThemeKind = document.body.classList.contains('vscode-dark') ? 'vs-dark' : 
+                       document.body.classList.contains('vscode-high-contrast') ? 'hc-black' : 'vs';
+    
+    // Define the editor options with the theme
     const editor = monaco.editor.create(
       document.getElementById("monaco-editor"),
       {
         value: window.mermaidText || "",
         language: "markdown",
-        theme: "vs-dark",
+        theme: vsThemeKind,
         minimap: { enabled: false },
         automaticLayout: true,
         fontSize: 14,
@@ -19,6 +24,17 @@ function initializeEditor() {
         wordWrap: "on",
       },
     );
+
+    // Listen for VS Code theme changes
+    window.addEventListener('message', event => {
+      const message = event.data;
+      if (message.type === 'vscode-theme-changed') {
+        // Update Monaco editor theme when VS Code theme changes
+        const newTheme = message.theme === 'vscode-dark' ? 'vs-dark' : 
+                        message.theme === 'vscode-high-contrast' ? 'hc-black' : 'vs';
+        monaco.editor.setTheme(newTheme);
+      }
+    });
 
     // Handle editor changes
     editor.onDidChangeModelContent(

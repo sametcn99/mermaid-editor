@@ -4,6 +4,7 @@ import * as path from "path";
 
 export class MermaidEditorExtension {
   private webviewProvider: WebviewContentProvider;
+  private webviewPanel: vscode.WebviewPanel | undefined;
 
   constructor(private context: vscode.ExtensionContext) {
     this.webviewProvider = new WebviewContentProvider(context);
@@ -27,6 +28,17 @@ export class MermaidEditorExtension {
     // Register commands
     this.registerCommands();
 
+    // Listen for theme changes
+    vscode.window.onDidChangeActiveColorTheme((e) => {
+      if (this.webviewPanel) {
+        this.webviewPanel.webview.postMessage({
+          type: 'vscode-theme-changed',
+          theme: e.kind === vscode.ColorThemeKind.Dark ? 'vscode-dark' :
+                 e.kind === vscode.ColorThemeKind.HighContrast ? 'vscode-high-contrast' : 'vscode-light'
+        });
+      }
+    });
+
     // Add to subscriptions
     this.context.subscriptions.push(customEditorProvider);
   }
@@ -37,6 +49,8 @@ export class MermaidEditorExtension {
     _token: vscode.CancellationToken,
   ): Promise<void> {
     try {
+      this.webviewPanel = webviewPanel;
+
       // Enable scripts in webview and set local resource roots
       const localResourceRoot = vscode.Uri.joinPath(
         this.context.extensionUri,
@@ -110,6 +124,7 @@ export class MermaidEditorExtension {
       // Clean up on editor close
       webviewPanel.onDidDispose(() => {
         changeDocumentSubscription.dispose();
+        this.webviewPanel = undefined;
       });
     } catch (error) {
       console.error("Error rendering template:", error);
