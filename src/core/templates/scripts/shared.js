@@ -1,5 +1,6 @@
 // Communication with VS Code
 const vscode = acquireVsCodeApi();
+window.vscode = vscode;
 
 // Utility functions
 function debounce(func, wait) {
