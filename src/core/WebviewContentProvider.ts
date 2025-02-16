@@ -10,6 +10,7 @@ interface ResourceUris {
   webfontsUri: string;
   cspSource: string;
   scriptUri: string; // Add scriptUri to the interface
+  mermaidUri: string; // Mermaid.js URI'sini ekledik
 }
 
 export class WebviewContentProvider {
@@ -71,6 +72,7 @@ export class WebviewContentProvider {
           webfontsUri: resources?.webfontsUri,
           cspSource: resources?.cspSource,
           scriptUri: resources?.scriptUri, // Pass scriptUri to template
+          mermaidUri: resources?.mermaidUri, // Mermaid URI'sini template'e gönder
         },
         {
           root: this.templatePath, // Set the root directory for includes

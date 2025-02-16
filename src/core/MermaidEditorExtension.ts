@@ -68,10 +68,16 @@ export class MermaidEditorExtension {
         "@fortawesome",
         "fontawesome-free",
       );
+      const mermaidRoot = vscode.Uri.joinPath(
+        this.context.extensionUri,
+        "node_modules",
+        "mermaid",
+        "dist",
+      );
 
       webviewPanel.webview.options = {
         enableScripts: true,
-        localResourceRoots: [localResourceRoot, fontAwesomeRoot],
+        localResourceRoots: [localResourceRoot, fontAwesomeRoot, mermaidRoot],
       };
 
       // Get URIs for resources
@@ -85,6 +91,9 @@ export class MermaidEditorExtension {
       const scriptUri = webviewPanel.webview.asWebviewUri(
         vscode.Uri.joinPath(localResourceRoot, "scripts"),
       );
+      const mermaidUri = webviewPanel.webview.asWebviewUri(
+        vscode.Uri.joinPath(mermaidRoot, "mermaid.min.js"),
+      );
 
       // Set initial content with resource URIs
       const text = document.getText().trim();
@@ -94,6 +103,7 @@ export class MermaidEditorExtension {
         webfontsUri: webfontsUri.toString(),
         cspSource: webviewPanel.webview.cspSource,
         scriptUri: scriptUri.toString(),
+        mermaidUri: mermaidUri.toString(),
       });
 
       // Handle document changes
@@ -109,6 +119,7 @@ export class MermaidEditorExtension {
                 webfontsUri: webfontsUri.toString(),
                 cspSource: webviewPanel.webview.cspSource,
                 scriptUri: scriptUri.toString(),
+                mermaidUri: mermaidUri.toString(),
               },
             );
           }
