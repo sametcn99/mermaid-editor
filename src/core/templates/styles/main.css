@@ -94,21 +94,33 @@ body {
   overflow: hidden;
   width: 100%;
   height: 100%;
+  cursor: default;
+  transform-origin: center center;
+  transform: scale(1); /* Varsayılan zoom %100 */
+}
+
+.preview-container:active {
+  cursor: grabbing;
 }
 
 #preview-content {
   position: absolute;
   transform-origin: 0 0;
   will-change: transform;
+  pointer-events: none;
+  transform: scale(1); /* Varsayılan zoom %100 */
 }
 
 .mermaid {
   display: inline-block;
   background: transparent;
+  pointer-events: auto;
 }
 
 .mermaid svg {
   display: block;
+  max-width: none;
+  max-height: none;
 }
 
 .zoom-level {
@@ -156,4 +168,14 @@ body {
   border: 1px solid var(--vscode-inputValidation-errorBorder);
   border-radius: 4px;
   background: var(--vscode-inputValidation-errorBackground);
+}
+
+.cursor-highlight {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  mix-blend-mode: multiply;
+  border: 2px solid rgba(255, 200, 0, 0.5);
+  border-radius: 3px;
 }

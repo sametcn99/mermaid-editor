@@ -3,13 +3,13 @@ function initializeToolbar() {
   document
     .getElementById("exportPNG")
     ?.addEventListener("click", () =>
-      window.vscode.postMessage({ command: "export", format: "png" })
+      window.vscode.postMessage({ command: "export", format: "png" }),
     );
 
   document
     .getElementById("exportSVG")
     ?.addEventListener("click", () =>
-      window.vscode.postMessage({ command: "export", format: "svg" })
+      window.vscode.postMessage({ command: "export", format: "svg" }),
     );
 
   // Copy to clipboard
@@ -24,7 +24,7 @@ function initializeToolbar() {
   document
     .getElementById("format")
     ?.addEventListener("click", () =>
-      window.vscode.postMessage({ command: "format" })
+      window.vscode.postMessage({ command: "format" }),
     );
 
   // Zoom controls
