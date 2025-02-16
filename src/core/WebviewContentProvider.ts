@@ -3,21 +3,9 @@ import * as ejs from 'ejs';
 import * as path from 'path';
 import * as fs from 'fs';
 import { t } from './utils/language';
-
-interface ResourceUris {
-  cssUri: string;
-  fontAwesomeCssUri: string;
-  webfontsUri: string;
-  cspSource: string;
-  scriptUri: string;
-  mermaidUri: string;
-  monacoEditorRoot: string;
-  monacoEditorUri: string;
-  monacoEditorCssUri: string;
-}
+import { ResourceUris } from './interfaces';
 
 export class WebviewContentProvider {
-  private static instance: WebviewContentProvider;
   private content: string = '';
   private templatePath: string;
   private readonly maxContentSize = 5 * 1024 * 1024; // 5MB limit
@@ -39,7 +27,7 @@ export class WebviewContentProvider {
     }
 
     if (mermaidText.length > this.maxContentSize) {
-      throw new Error('Content exceeds maximum size limit of 1MB');
+      throw new Error('Content exceeds maximum size limit of 5MB');
     }
 
     try {
@@ -48,7 +36,6 @@ export class WebviewContentProvider {
         throw new Error('Template file is empty');
       }
 
-      // Ensure all required resources are available
       if (!resources?.monacoEditorRoot) {
         throw new Error('Monaco Editor root path is required');
       }
@@ -60,19 +47,11 @@ export class WebviewContentProvider {
           mermaidText,
           t,
           errorHandler: this.handleError.bind(this),
-          cssUri: resources?.cssUri,
-          fontAwesomeCssUri: resources?.fontAwesomeCssUri,
-          webfontsUri: resources?.webfontsUri,
-          cspSource: resources?.cspSource,
-          scriptUri: resources?.scriptUri, // Pass scriptUri to template
-          mermaidUri: resources?.mermaidUri, // Pass mermaidUri to template
-          monacoEditorRoot: resources.monacoEditorRoot,
-          monacoEditorUri: resources?.monacoEditorUri,
-          monacoEditorCssUri: resources?.monacoEditorCssUri,
+          ...resources,
         },
         {
-          root: this.templatePath, // Set the root directory for includes
-          filename: path.join(this.templatePath, 'index.ejs'), // Set the filename for proper relative path resolution
+          root: this.templatePath,
+          filename: path.join(this.templatePath, 'index.ejs'),
         }
       );
 
