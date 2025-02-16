@@ -1,5 +1,4 @@
 import { JSDOM } from "jsdom";
-import { IHTMLComponent } from "../interfaces/IHTMLComponent";
 import * as ejs from "ejs";
 import * as fs from "fs";
 import * as path from "path";

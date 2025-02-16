@@ -1,5 +1,3 @@
-import { StyleConfig } from "../interfaces/StyleConfig";
-
 export function getNonce(): string {
   let text = "";
   const possible =

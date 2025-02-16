@@ -1,4 +1,8 @@
-export interface StyleConfig {
+type IHTMLComponent = {
+  render(): string;
+};
+
+type StyleConfig = {
   editorWidth: string;
   previewWidth: string;
   fontFamily: string;
@@ -9,4 +13,4 @@ export interface StyleConfig {
     foreground: string;
     border: string;
   };
-}
+};
