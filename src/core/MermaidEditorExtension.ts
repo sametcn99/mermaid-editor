@@ -131,15 +131,17 @@ export class MermaidEditorExtension {
   private registerCommands(): void {
     this.context.subscriptions.push(
       vscode.commands.registerCommand('mermaid-editor.export.png', () => {
+        if (!this.exportService) return;
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-          this.exportService?.handleExport(editor.document, 'png');
+          this.exportService.handleExport(editor.document, 'png');
         }
       }),
       vscode.commands.registerCommand('mermaid-editor.export.svg', () => {
+        if (!this.exportService) return;
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-          this.exportService?.handleExport(editor.document, 'svg');
+          this.exportService.handleExport(editor.document, 'svg');
         }
       })
     );
