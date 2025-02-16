@@ -17,6 +17,17 @@
         "command": "mermaid-editor.helloWorld",
         "title": "Hello World"
       }
+    ],
+    "customEditors": [
+      {
+        "viewType": "mermaid-editor",
+        "displayName": "",
+        "selector": [
+          {
+            "filenamePattern": "**/*.mmd"
+          }
+        ]
+      }
     ]
   },
   "scripts": {
@@ -32,6 +43,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.97.0",
@@ -48,6 +60,7 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "jsdom": "^26.0.0",
     "mermaid": "^11.4.1"
   }
 }
