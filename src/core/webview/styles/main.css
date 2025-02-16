@@ -38,6 +38,12 @@ body {
   display: flex;
   gap: 8px;
   align-items: center;
+  padding: 0 8px;
+  border-right: 1px solid var(--vscode-editor-lineHighlightBorder);
+}
+
+.toolbar-group:last-child {
+  border-right: none;
 }
 
 .toolbar-button {
@@ -52,14 +58,24 @@ body {
   cursor: pointer;
   font-size: 12px;
   height: 24px;
+  transition: background-color 0.2s;
 }
 
 .toolbar-button:hover {
   background: var(--vscode-button-hoverBackground);
 }
 
+.toolbar-button:active {
+  background: var(--vscode-button-background);
+  opacity: 0.8;
+}
+
 .toolbar-button i {
   font-size: 14px;
+}
+
+.toolbar-button span {
+  line-height: 16px;
 }
 
 .toolbar-select {

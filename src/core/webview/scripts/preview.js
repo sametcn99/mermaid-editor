@@ -432,3 +432,125 @@ document.addEventListener('DOMContentLoaded', initializePreview);
 window.zoomDiagram = delta => zoomAt(window.innerWidth / 4, window.innerHeight / 2, delta);
 window.resetView = resetView;
 window.fitToScreen = fitToScreen;
+
+function getEncodedSvg(svg) {
+  // Clone the SVG element to avoid modifying the displayed one
+  const clonedSvg = svg.cloneNode(true);
+
+  // Get actual dimensions from the SVG
+  const bbox = svg.getBBox();
+  const width = Math.ceil(bbox.width);
+  const height = Math.ceil(bbox.height);
+
+  // Set proper attributes for export
+  clonedSvg.setAttribute('width', width);
+  clonedSvg.setAttribute('height', height);
+  clonedSvg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${width} ${height}`);
+
+  // Ensure white background and proper styling
+  const styleContent = `
+    svg {
+      background-color: white;
+      shape-rendering: geometricPrecision;
+      text-rendering: optimizeLegibility;
+    }
+  `;
+  const style = document.createElement('style');
+  style.textContent = styleContent;
+  clonedSvg.insertBefore(style, clonedSvg.firstChild);
+
+  // Clean up any transform attributes that might affect rendering
+  clonedSvg.removeAttribute('transform');
+
+  // Convert SVG to a data URL
+  const svgString = new XMLSerializer().serializeToString(clonedSvg);
+  const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`;
+}
+
+// Handle export requests
+window.addEventListener('message', async event => {
+  const message = event.data;
+  if (message.command === 'requestExport') {
+    const mermaidDiv = document.querySelector('.mermaid');
+    const svg = mermaidDiv?.querySelector('svg');
+
+    if (!svg) {
+      window.vscode.postMessage({
+        command: 'exportError',
+        error: 'No SVG diagram found to export',
+      });
+      return;
+    }
+
+    try {
+      if (message.format === 'svg') {
+        // For SVG export, send the SVG string directly
+        const svgString = new XMLSerializer().serializeToString(svg);
+        window.vscode.postMessage({
+          command: 'exportComplete',
+          format: 'svg',
+          data: svgString,
+          filePath: message.filePath,
+        });
+      } else if (message.format === 'png') {
+        // For PNG export, use data URL approach
+        const dataUrl = getEncodedSvg(svg);
+        const img = new Image();
+
+        img.onload = () => {
+          // Create canvas with proper dimensions
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Set canvas size to match the SVG dimensions
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          // Draw white background
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Enable image smoothing
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+
+          // Draw the image
+          ctx.drawImage(img, 0, 0);
+
+          try {
+            // Convert to PNG data URL and extract the base64 data
+            const pngData = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+
+            window.vscode.postMessage({
+              command: 'exportComplete',
+              format: 'png',
+              data: pngData,
+              filePath: message.filePath,
+            });
+          } catch (error) {
+            window.vscode.postMessage({
+              command: 'exportError',
+              error: 'Failed to convert to PNG: ' + error.message,
+            });
+          }
+        };
+
+        img.onerror = error => {
+          window.vscode.postMessage({
+            command: 'exportError',
+            error: 'Failed to load SVG for PNG conversion: ' + (error.message || 'Unknown error'),
+          });
+        };
+
+        // Load the image using data URL instead of blob URL
+        img.src = dataUrl;
+      }
+    } catch (error) {
+      window.vscode.postMessage({
+        command: 'exportError',
+        error: error instanceof Error ? error.message : 'Unknown error during export',
+      });
+    }
+  }
+});

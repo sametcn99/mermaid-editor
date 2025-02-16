@@ -12,14 +12,25 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [],
+    "commands": [
+      {
+        "command": "mermaid-editor.export.png",
+        "title": "Export as PNG",
+        "category": "Mermaid Editor"
+      },
+      {
+        "command": "mermaid-editor.export.svg",
+        "title": "Export as SVG",
+        "category": "Mermaid Editor"
+      }
+    ],
     "menus": {
       "editor/title": []
     },
     "customEditors": [
       {
         "viewType": "mermaid-editor",
-        "displayName": "",
+        "displayName": "Mermaid Editor",
         "selector": [
           {
             "filenamePattern": "**/*.mmd"
@@ -63,6 +74,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "canvas": "^2.11.2",
     "ejs": "^3.1.10",
     "jsdom": "^26.0.0",
     "mermaid": "^11.4.1",

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { WebviewContentProvider } from './WebviewContentProvider';
+import * as path from 'path';
 
 export class MermaidEditorExtension {
   private webviewProvider: WebviewContentProvider;
@@ -141,11 +142,35 @@ export class MermaidEditorExtension {
             edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), message.text);
             await vscode.workspace.applyEdit(edit);
             break;
+
           case 'export':
-            this.handleExport(document, message.format as 'png' | 'svg');
+            await this.handleExport(document, message.format);
             break;
+
+          case 'exportComplete':
+            try {
+              const data =
+                message.format === 'png'
+                  ? Buffer.from(message.data, 'base64')
+                  : Buffer.from(message.data);
+
+              await vscode.workspace.fs.writeFile(vscode.Uri.file(message.filePath), data);
+              vscode.window.showInformationMessage(
+                `Exported diagram as ${message.format.toUpperCase()}`
+              );
+            } catch (error) {
+              vscode.window.showErrorMessage(
+                `Failed to save exported file: ${error instanceof Error ? error.message : String(error)}`
+              );
+            }
+            break;
+
+          case 'exportError':
+            vscode.window.showErrorMessage(`Export failed: ${message.error}`);
+            break;
+
           case 'format':
-            this.formatDocument(document);
+            await this.formatDocument(document);
             break;
         }
       });
@@ -183,9 +208,32 @@ export class MermaidEditorExtension {
 
   private async handleExport(document: vscode.TextDocument, format: 'png' | 'svg'): Promise<void> {
     try {
-      // Implementation for export functionality
-      // This will be implemented when we add export features
-      vscode.window.showInformationMessage(`Exporting as ${format.toUpperCase()}...`);
+      if (!this.webviewPanel) {
+        throw new Error('No active webview panel');
+      }
+
+      // Get the file name without extension
+      const fileName = path.parse(document.fileName).name;
+
+      // Show save dialog
+      const filters: { [key: string]: string[] } =
+        format === 'png' ? { 'PNG Images': ['png'] } : { 'SVG Images': ['svg'] };
+
+      const saveUri = await vscode.window.showSaveDialog({
+        defaultUri: vscode.Uri.file(`${fileName}.${format}`),
+        filters,
+        title: `Export as ${format.toUpperCase()}`,
+        saveLabel: `Export ${format.toUpperCase()}`,
+      });
+
+      if (saveUri) {
+        // Request diagram content from webview
+        this.webviewPanel.webview.postMessage({
+          command: 'requestExport',
+          format,
+          filePath: saveUri.fsPath,
+        });
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       vscode.window.showErrorMessage(
@@ -196,12 +244,42 @@ export class MermaidEditorExtension {
 
   private async formatDocument(document: vscode.TextDocument): Promise<void> {
     try {
-      // Implementation for formatting functionality
-      // This will be implemented when we add formatting features
-      vscode.window.showInformationMessage('Formatting document...');
+      // Get the document text
+      const text = document.getText();
+
+      // Format using Prettier if installed
+      const prettier = await import('prettier');
+      const formatted = await prettier.format(text, {
+        parser: 'markdown',
+        printWidth: 80,
+        proseWrap: 'preserve',
+      });
+
+      // Apply the formatting
+      const edit = new vscode.WorkspaceEdit();
+      edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), formatted);
+
+      await vscode.workspace.applyEdit(edit);
+      vscode.window.showInformationMessage('Document formatted successfully');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       vscode.window.showErrorMessage(`Failed to format document: ${errorMessage}`);
+
+      // Fallback to basic formatting if Prettier fails
+      try {
+        const text = document.getText();
+        const lines = text.split('\n');
+        const formattedLines = lines.map(line => line.trim());
+        const formatted = formattedLines.join('\n');
+
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), formatted);
+
+        await vscode.workspace.applyEdit(edit);
+        vscode.window.showInformationMessage('Document formatted with basic formatter');
+      } catch (fallbackError) {
+        vscode.window.showErrorMessage('Failed to apply basic formatting');
+      }
     }
   }
 }

@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta
     http-equiv="Content-Security-Policy"
-    content="default-src 'none'; worker-src blob:; img-src <%= cspSource %> https: data:; script-src <%= cspSource %> blob: 'unsafe-inline' 'unsafe-eval'; style-src <%= cspSource %> 'unsafe-inline'; font-src <%= cspSource %> <%= webfontsUri %> data: 'self';"
+    content="default-src 'none'; worker-src blob:; img-src <%= cspSource %> https: data: blob: 'self'; script-src <%= cspSource %> blob: 'unsafe-inline' 'unsafe-eval'; style-src <%= cspSource %> 'unsafe-inline'; font-src <%= cspSource %> <%= webfontsUri %> data: 'self';"
   />
   <title><%- t('Mermaid Editor') %></title>
 

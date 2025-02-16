@@ -235,12 +235,14 @@ async function initializeEditor() {
 }
 
 function onCursorPositionChange(position) {
-  const vscode = acquireVsCodeApi();
-  vscode.postMessage({
-    type: 'cursorPosition',
-    line: position.lineNumber,
-    column: position.column,
-  });
+  // Use the global vscode instance instead of acquiring a new one
+  if (window.vscode) {
+    window.vscode.postMessage({
+      type: 'cursorPosition',
+      line: position.lineNumber,
+      column: position.column,
+    });
+  }
 }
 
 function initializeSplitter() {
