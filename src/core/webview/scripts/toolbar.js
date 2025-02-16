@@ -12,14 +12,6 @@ function initializeToolbar() {
       window.vscode.postMessage({ command: 'export', format: 'svg' })
     );
 
-  // Copy to clipboard
-  document.getElementById('copyToClipboard')?.addEventListener('click', () => {
-    const editor = document.getElementById('editor');
-    if (editor) {
-      navigator.clipboard.writeText(editor.value);
-    }
-  });
-
   // Format document
   document
     .getElementById('format')
