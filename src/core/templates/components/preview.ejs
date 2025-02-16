@@ -1,0 +1,17 @@
+<%# Preview Component %>
+<div id="preview">
+  <div class="preview-container" tabindex="0">
+    <div id="preview-content">
+      <div class="mermaid">
+        <%- mermaidText %>
+      </div>
+    </div>
+  </div>
+  <div class="zoom-level">100%</div>
+  <div class="keyboard-shortcuts">
+    <%- t('Ctrl + Wheel: Zoom') %><br>
+    <%- t('Alt + Drag or Space + Drag: Pan') %><br>
+    <%- t('Ctrl + 0: Reset View') %><br>
+    <%- t('Ctrl + F: Fit') %>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<%# Toolbar Component %>
+<div class="toolbar">
+  <div class="toolbar-group">
+    <button id="format" class="toolbar-button" title="<%- t('Format Diagram Code') %>">
+      <i class="fas fa-align-left"></i>
+      <span><%- t('Format') %></span>
+    </button>
+    <button id="copyToClipboard" class="toolbar-button" title="<%- t('Copy to Clipboard') %>">
+      <i class="fas fa-copy"></i>
+      <span><%- t('Copy') %></span>
+    </button>
+  </div>
+
+  <div class="toolbar-group">
+    <button id="exportPNG" class="toolbar-button" title="<%- t('Export as PNG') %>">
+      <i class="fas fa-file-image"></i>
+      <span><%- t('PNG') %></span>
+    </button>
+    <button id="exportSVG" class="toolbar-button" title="<%- t('Export as SVG') %>">
+      <i class="fas fa-code"></i>
+      <span><%- t('SVG') %></span>
+    </button>
+  </div>
+
+  <div class="toolbar-group">
+    <button id="zoomIn" class="toolbar-button" title="<%- t('Zoom In (Ctrl + Mouse Wheel Up)') %>">
+      <i class="fas fa-search-plus"></i>
+    </button>
+    <button id="zoomOut" class="toolbar-button" title="<%- t('Zoom Out (Ctrl + Mouse Wheel Down)') %>">
+      <i class="fas fa-search-minus"></i>
+    </button>
+    <button id="resetZoom" class="toolbar-button" title="<%- t('Reset Zoom (Ctrl + 0)') %>">
+      <i class="fas fa-expand"></i>
+    </button>
+  </div>
+
+  <div class="toolbar-group">
+    <select id="themeSelect" class="toolbar-select" title="<%- t('Select Theme') %>">
+      <option value="default">Default Theme</option>
+      <option value="dark">Dark Theme</option>
+      <option value="forest">Forest Theme</option>
+    </select>
+  </div>
+</div>

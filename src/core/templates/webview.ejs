@@ -1,565 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mermaid Editor</title>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-    />
-    <style>
-      body {
-        padding: 0;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-          Cantarell, sans-serif;
-      }
-      .toolbar {
-        padding: 8px 16px;
-        background-color: var(--vscode-editor-background);
-        border-bottom: 1px solid var(--vscode-panel-border);
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .toolbar button {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        background: var(--vscode-button-background);
-        color: var(--vscode-button-foreground);
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 13px;
-        transition:
-          background 0.2s,
-          transform 0.1s;
-        white-space: nowrap;
-      }
-      .toolbar button i {
-        margin-right: 8px;
-        font-size: 14px;
-      }
-      .toolbar button:hover {
-        background: var(--vscode-button-hoverBackground);
-      }
-      .toolbar button:active {
-        transform: translateY(1px);
-      }
-      .toolbar-group {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        padding: 0 8px;
-        border-right: 1px solid var(--vscode-panel-border);
-      }
-      .toolbar-group:last-child {
-        border-right: none;
-      }
-      .content-container {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-        position: relative;
-        background: var(--vscode-editor-background);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      #editor {
-        width: 50%;
-        height: 100%;
-        border-right: 1px solid var(--vscode-panel-border);
-        background-color: transparent;
-        color: var(--vscode-editor-foreground);
-        resize: none;
-        padding: 16px;
-        font-family: "Consolas", "Monaco", monospace;
-        font-size: 14px;
-        line-height: 1.5;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        opacity: 1;
-        visibility: visible;
-      }
-      #editor:focus {
-        outline: none;
-      }
-      #editor.hidden {
-        width: 0;
-        padding: 0;
-        margin: 0;
-        border: none;
-        opacity: 0;
-        visibility: hidden;
-      }
-      #preview {
-        width: 50%;
-        height: 100%;
-        padding: 24px;
-        box-sizing: border-box;
-        overflow: hidden;
-        position: relative;
-        cursor: grab;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      #preview.preview-expanded {
-        width: 100%;
-      }
-      #preview.grabbing {
-        cursor: grabbing;
-      }
-      .preview-container {
-        position: absolute;
-        transform-origin: center center;
-        transition: transform 0.15s ease-out;
-      }
-      .zoom-level {
-        position: absolute;
-        bottom: 16px;
-        right: 16px;
-        background: var(--vscode-editor-background);
-        padding: 6px 12px;
-        border-radius: 4px;
-        opacity: 0.9;
-        font-size: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      }
-      .keyboard-shortcuts {
-        position: absolute;
-        bottom: 60px;
-        right: 16px;
-        background: var(--vscode-editor-background);
-        padding: 12px;
-        border-radius: 6px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        line-height: 1.6;
-      }
-      #preview:hover .keyboard-shortcuts {
-        opacity: 0.9;
-      }
-      .context-menu {
-        position: fixed;
-        background: var(--vscode-menu-background);
-        border: 1px solid var(--vscode-menu-border);
-        border-radius: 4px;
-        padding: 4px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-      }
-      .context-menu-item {
-        padding: 8px 16px;
-        cursor: pointer;
-        color: var(--vscode-menu-foreground);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        transition: background 0.1s;
-      }
-      .context-menu-item:hover {
-        background: var(--vscode-menu-selectionBackground);
-      }
-      .mermaid {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      /* Add styles to ensure proper cursor behavior */
-      .mermaid * {
-        cursor: default !important;
-      }
-      #preview.grabbing * {
-        cursor: grabbing !important;
-      }
-      .fas.fa-chevron-left {
-        transition: transform 0.3s ease;
-      }
-      .fas.fa-chevron-left.rotated {
-        transform: rotate(180deg);
-      }
-      .toggle-editor {
-        position: relative;
-        min-width: 120px;
-        justify-content: space-between;
-        padding-right: 14px !important;
-      }
+  <%- include('./components/head') %>
+  <body>
+    <div class="container">
+      <%- include('./components/toolbar') %>
+      <div class="content">
+        <div class="editor-container">
+          <%- include('./components/editor') %>
+        </div>
+        <%- include('./components/preview') %>
+      </div>
+    </div>
 
-      .toggle-editor .fas {
-        position: absolute;
-        left: 12px;
-        transition: transform 0.3s ease;
-      }
+    <!-- Include scripts with proper tags -->
+    <script src="<%= scriptUri %>/shared.js"></script>
+    <script src="<%= scriptUri %>/editor.js"></script>
+    <script src="<%= scriptUri %>/preview.js"></script>
+    <script src="<%= scriptUri %>/toolbar.js"></script>
 
-      .toggle-editor span {
-        margin-left: 16px;
-      }
-
-      #editor.hidden + #preview {
-        width: 100%;
-      }
-
-      .content-container {
-        position: relative;
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-        background: var(--vscode-editor-background);
-      }
-
-      .toggle-editor i {
-        transform-origin: center;
-      }
-    </style>
+    <!-- Initialize mermaid and setup -->
     <script>
-      const mermaidText = `<%- mermaidText %>`;
-      let currentZoom = 1;
-      const ZOOM_STEP = 0.1;
-      const MAX_ZOOM = 3;
-      const MIN_ZOOM = 0.3;
-      let isDragging = false;
-      let startX,
-        startY,
-        panX = 0,
-        panY = 0;
-      let contextMenu = null;
-
-      function createPreviewContainer() {
-        const container = document.createElement("div");
-        container.className = "preview-container";
-        return container;
-      }
-
-      function updateDiagram(text) {
-        try {
-          const previewDiv = document.querySelector("#preview");
-          const container =
-            previewDiv.querySelector(".preview-container") ||
-            createPreviewContainer();
-          const mermaidDiv = document.createElement("div");
-          mermaidDiv.className = "mermaid";
-          mermaidDiv.textContent = text;
-
-          // Clear and update container
-          container.innerHTML = "";
-          container.appendChild(mermaidDiv);
-
-          if (!container.parentElement) {
-            previewDiv.appendChild(container);
-          }
-
-          // Re-render mermaid diagram
-          mermaid.contentLoaded();
-        } catch (error) {
-          console.error("Mermaid render error:", error);
-        }
-      }
-
-      function setZoom(zoom) {
-        const container = document.querySelector(".preview-container");
-        currentZoom = Math.min(Math.max(zoom, MIN_ZOOM), MAX_ZOOM);
-        updateTransform();
-        updateZoomLevel();
-      }
-
-      function updateTransform() {
-        const container = document.querySelector(".preview-container");
-        container.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
-      }
-
-      function updateZoomLevel() {
-        const zoomLevel = document.querySelector(".zoom-level");
-        zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
-      }
-
-      function showContextMenu(e) {
-        e.preventDefault();
-        if (contextMenu) {
-          document.body.removeChild(contextMenu);
-        }
-
-        contextMenu = document.createElement("div");
-        contextMenu.className = "context-menu";
-        contextMenu.innerHTML = `
-          <div class="context-menu-item" onclick="resetView()">Reset View</div>
-          <div class="context-menu-item" onclick="fitDiagram()">Fit to Screen</div>
-          <div class="context-menu-item" onclick="centerDiagram()">Center Diagram</div>
-        `;
-
-        contextMenu.style.left = e.pageX + "px";
-        contextMenu.style.top = e.pageY + "px";
-        document.body.appendChild(contextMenu);
-      }
-
-      function resetView() {
-        panX = 0;
-        panY = 0;
-        setZoom(1);
-        hideContextMenu();
-      }
-
-      function hideContextMenu() {
-        if (contextMenu) {
-          document.body.removeChild(contextMenu);
-          contextMenu = null;
-        }
-      }
-
-      function fitDiagram() {
-        const preview = document.querySelector("#preview");
-        const container = preview.querySelector(".preview-container");
-        const diagram = container.querySelector(".mermaid");
-
-        const scaleX = preview.clientWidth / diagram.clientWidth;
-        const scaleY = preview.clientHeight / diagram.clientHeight;
-        const scale = Math.min(scaleX, scaleY, MAX_ZOOM) * 0.9;
-
-        setZoom(scale);
-        centerDiagram();
-        hideContextMenu();
-      }
-
-      function centerDiagram() {
-        const preview = document.querySelector("#preview");
-        const container = preview.querySelector(".preview-container");
-        const diagram = container.querySelector(".mermaid");
-
-        panX = (preview.clientWidth - diagram.clientWidth * currentZoom) / 2;
-        panY = (preview.clientHeight - diagram.clientHeight * currentZoom) / 2;
-
-        updateTransform();
-        hideContextMenu();
-      }
-
-      function zoomIn() {
-        setZoom(currentZoom + ZOOM_STEP);
-      }
-
-      function zoomOut() {
-        setZoom(currentZoom - ZOOM_STEP);
-      }
-
-      function resetZoom() {
-        setZoom(1);
-      }
-
-      function toggleEditor() {
-        const editor = document.getElementById("editor");
-        const preview = document.getElementById("preview");
-        const button = document.getElementById("toggleEditor");
-        const icon = button.querySelector(".fas");
-
-        editor.classList.toggle("hidden");
-        icon.classList.toggle("rotated");
-
-        const isHidden = editor.classList.contains("hidden");
-        button.setAttribute("title", isHidden ? "Show Editor" : "Hide Editor");
-
-        // Update the button text
-        button.innerHTML = `
-          <i class="fas fa-chevron-left${isHidden ? " rotated" : ""}"></i>
-          <span>${isHidden ? "Show Editor" : "Hide Editor"}</span>
-        `;
-
-        // Trigger resize and refit after animation
-        setTimeout(() => {
-          window.dispatchEvent(new Event("resize"));
-          if (typeof fitDiagram === "function") {
-            fitDiagram();
-          }
-        }, 300);
-      }
+      window.mermaidText = `<%- mermaidText %>`;
 
       document.addEventListener("DOMContentLoaded", () => {
-        // Initialize mermaid with vscode theme detection
         mermaid.initialize({
-          startOnLoad: true,
-          securityLevel: "loose",
+          startOnLoad: false,
+          securityLevel: "strict",
           logLevel: "error",
+          theme: "default"
         });
 
-        // Set initial text in editor
-        const editor = document.getElementById("editor");
-        editor.value = mermaidText;
-
-        // Initial render
-        updateDiagram(mermaidText);
-
-        // Add zoom control listeners
-        document.getElementById("zoomIn").addEventListener("click", zoomIn);
-        document.getElementById("zoomOut").addEventListener("click", zoomOut);
-        document
-          .getElementById("resetZoom")
-          .addEventListener("click", resetZoom);
-
-        // Add wheel zoom support with Ctrl key
-        document.getElementById("preview").addEventListener("wheel", (e) => {
-          if (e.ctrlKey) {
-            e.preventDefault();
-            if (e.deltaY < 0) {
-              zoomIn();
-            } else {
-              zoomOut();
+        if (window.mermaidText) {
+          updateDiagram(window.mermaidText);
+          setTimeout(() => {
+            if (window.fitToScreen) {
+              window.fitToScreen();
             }
+          }, 100);
+        }
+
+        window.addEventListener("message", (event) => {
+          const message = event.data;
+          switch (message.command) {
+            case "update":
+              if (message.text) {
+                updateDiagram(message.text);
+              }
+              break;
+            case "theme-change":
+              mermaid.initialize({
+                theme: message.theme === "dark" ? "dark" : "default",
+                securityLevel: "strict"
+              });
+              updateDiagram(window.mermaidText);
+              break;
           }
         });
-
-        // Add live update listener with debounce
-        let timeout;
-        editor.addEventListener("input", (e) => {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => {
-            updateDiagram(e.target.value);
-          }, 300); // Debounce for better performance
-        });
-
-        const preview = document.getElementById("preview");
-
-        // Add zoom level indicator
-        const zoomLevel = document.createElement("div");
-        zoomLevel.className = "zoom-level";
-        preview.appendChild(zoomLevel);
-        updateZoomLevel();
-
-        // Add keyboard shortcuts info
-        const shortcuts = document.createElement("div");
-        shortcuts.className = "keyboard-shortcuts";
-        shortcuts.innerHTML = `
-          Ctrl + Wheel: Zoom
-          Space + Drag: Pan
-          Ctrl + 0: Reset View
-          Ctrl + F: Fit to Screen
-        `;
-        preview.appendChild(shortcuts);
-
-        // Pan functionality
-        preview.addEventListener("mousedown", (e) => {
-          if (
-            e.button === 0 &&
-            (e.target === preview ||
-              e.target.classList.contains("preview-container") ||
-              e.target.classList.contains("mermaid"))
-          ) {
-            isDragging = true;
-            preview.classList.add("grabbing");
-            startX = e.clientX - panX;
-            startY = e.clientY - panY;
-          }
-        });
-
-        document.addEventListener("mousemove", (e) => {
-          if (isDragging) {
-            panX = e.clientX - startX;
-            panY = e.clientY - startY;
-            updateTransform();
-          }
-        });
-
-        document.addEventListener("mouseup", () => {
-          isDragging = false;
-          preview.classList.remove("grabbing");
-        });
-
-        // Context menu
-        preview.addEventListener("contextmenu", showContextMenu);
-        document.addEventListener("click", hideContextMenu);
-
-        // Keyboard shortcuts
-        document.addEventListener("keydown", (e) => {
-          if (e.ctrlKey) {
-            switch (e.key) {
-              case "0":
-                e.preventDefault();
-                resetView();
-                break;
-              case "f":
-                e.preventDefault();
-                fitDiagram();
-                break;
-              case "\\":
-                e.preventDefault();
-                toggleEditor();
-                break;
-            }
-          }
-        });
-
-        // Add toggle editor button listener
-        document
-          .getElementById("toggleEditor")
-          .addEventListener("click", toggleEditor);
-
-        // Add keyboard shortcut for toggle
-        document.addEventListener("keydown", (e) => {
-          if (e.ctrlKey && e.key === "b") {
-            e.preventDefault();
-            toggleEditor();
-          }
-        });
-
-        // Initial diagram setup
-        updateDiagram(mermaidText);
-        centerDiagram();
       });
     </script>
-  </head>
-  <body>
-    <div class="toolbar">
-      <div class="toolbar-group">
-        <button id="toggleEditor" class="toggle-editor" title="Hide Editor">
-          <i class="fas fa-chevron-left"></i>
-          <span>Hide Editor</span>
-        </button>
-      </div>
-      <div class="toolbar-group">
-        <button id="exportPNG" title="Export as PNG">
-          <i class="fas fa-file-image"></i>
-          PNG
-        </button>
-        <button id="exportSVG" title="Export as SVG">
-          <i class="fas fa-code"></i>
-          SVG
-        </button>
-        <button id="copyToClipboard" title="Copy to Clipboard">
-          <i class="fas fa-copy"></i>
-          Copy
-        </button>
-      </div>
-      <div class="toolbar-group">
-        <button id="format" title="Format Diagram Code">
-          <i class="fas fa-align-left"></i>
-          Format
-        </button>
-      </div>
-      <div class="toolbar-group">
-        <button
-          id="zoomIn"
-          class="fas fa-search-plus"
-          title="Zoom In (Ctrl + Mouse Wheel Up)"
-        />
-        <button
-          id="zoomOut"
-          class="fas fa-search-minus"
-          title="Zoom Out (Ctrl + Mouse Wheel Down)"
-        />
-        <button
-          id="resetZoom"
-          class="fas fa-expand"
-          title="Reset Zoom (Ctrl + 0)"
-        />
-      </div>
-    </div>
-    <div class="content-container">
-      <textarea id="editor" spellcheck="false"></textarea>
-      <div id="preview"></div>
-    </div>
   </body>
 </html>

@@ -1,0 +1,19 @@
+<!-- Head.ejs -->
+<%# Head Component %>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src <%= cspSource %> https: data:; script-src <%= cspSource %> 'unsafe-inline' https://cdn.jsdelivr.net 'unsafe-eval'; style-src <%= cspSource %> 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src <%= cspSource %> data:;">
+    <title><%- t('Mermaid Editor') %></title>
+    
+    <!-- Load styles -->
+    <link rel="stylesheet" href="<%= cssUri %>" />
+    <link rel="stylesheet" href="<%= fontAwesomeCssUri %>" />
+    
+    <!-- Load Monaco Editor from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/editor/editor.main.css" />
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script>
+    
+    <!-- Load Mermaid from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>

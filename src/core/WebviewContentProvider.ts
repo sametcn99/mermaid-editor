@@ -2,11 +2,20 @@ import * as vscode from "vscode";
 import * as ejs from "ejs";
 import * as path from "path";
 import * as fs from "fs";
+import { t } from "./utils/language";
+
+interface ResourceUris {
+  cssUri: string;
+  fontAwesomeCssUri: string;
+  cspSource: string;
+  scriptUri: string; // Add scriptUri to the interface
+}
 
 export class WebviewContentProvider {
   private static instance: WebviewContentProvider;
   private content: string = "";
   private templatePath: string;
+  private readonly maxContentSize = 1024 * 1024; // 1MB limit
 
   constructor(context: vscode.ExtensionContext) {
     this.templatePath = path.join(
@@ -14,11 +23,9 @@ export class WebviewContentProvider {
       "src",
       "core",
       "templates",
-      "webview.ejs",
     );
-    // Validate template exists on initialization
     if (!fs.existsSync(this.templatePath)) {
-      throw new Error(`Template file not found at: ${this.templatePath}`);
+      throw new Error(`Template directory not found at: ${this.templatePath}`);
     }
   }
 
@@ -26,45 +33,77 @@ export class WebviewContentProvider {
     this.content = "";
   }
 
-  public getContent(mermaidText: string): string {
-    // Input validation
+  public getContent(mermaidText: string, resources?: ResourceUris): string {
     if (typeof mermaidText !== "string") {
       throw new Error("Invalid input: mermaidText must be a string");
     }
 
+    if (mermaidText.length > this.maxContentSize) {
+      throw new Error("Content exceeds maximum size limit of 1MB");
+    }
+
     if (!mermaidText.trim()) {
-      return "";
+      return this.renderError("No diagram content provided");
     }
 
     try {
-      const template = fs.readFileSync(this.templatePath, "utf-8");
+      // Validate diagram syntax before rendering
+      this.validateDiagramSyntax(mermaidText);
 
-      // Validate template content
+      const template = fs.readFileSync(
+        path.join(this.templatePath, "webview.ejs"),
+        "utf-8",
+      );
       if (!template) {
         throw new Error("Template file is empty");
       }
 
-      this.content = ejs.render(template, {
-        content: mermaidText, // Add this line to pass content
-        mermaidText,
-        // Add error handling helper
-        errorHandler: (err: Error) => {
-          vscode.window.showErrorMessage(
-            `Mermaid rendering error: ${err.message}`,
-          );
-          return "";
+      this.content = ejs.render(
+        template,
+        {
+          content: mermaidText,
+          mermaidText,
+          t,
+          errorHandler: this.handleError.bind(this),
+          cssUri: resources?.cssUri,
+          fontAwesomeCssUri: resources?.fontAwesomeCssUri,
+          cspSource: resources?.cspSource,
+          scriptUri: resources?.scriptUri, // Pass scriptUri to template
         },
-      });
+        {
+          root: this.templatePath, // Set the root directory for includes
+          filename: path.join(this.templatePath, "webview.ejs"), // Set the filename for proper relative path resolution
+        },
+      );
 
       return this.content;
     } catch (error) {
-      // Log error and show user-friendly message
-      console.error("Template rendering error:", error);
-      vscode.window.showErrorMessage(
-        `Failed to render Mermaid diagram: ${error instanceof Error ? error.message : "Unknown error"}`,
+      return this.renderError(
+        error instanceof Error ? error.message : "Unknown error",
       );
-      return `<!-- Error rendering diagram: ${error instanceof Error ? error.message : "Unknown error"} -->`;
     }
+  }
+
+  private validateDiagramSyntax(content: string): void {
+    // Basic syntax validation
+    const hasValidStart =
+      /^\s*(graph|sequenceDiagram|classDiagram|stateDiagram|gantt|pie|flowchart|erDiagram)/m.test(
+        content,
+      );
+    if (!hasValidStart) {
+      throw new Error(
+        "Invalid Mermaid diagram syntax: Must start with a valid diagram type",
+      );
+    }
+  }
+
+  private handleError(err: Error): string {
+    vscode.window.showErrorMessage(`Mermaid rendering error: ${err.message}`);
+    return this.renderError(err.message);
+  }
+
+  private renderError(message: string): string {
+    return `<div class="error-message">Error: ${message}</div>`;
   }
 
   public getCurrentContent(): string {
