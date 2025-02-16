@@ -10,12 +10,12 @@ function initializePreview() {
   if (!previewContainer) return;
 
   // Create cursor highlight element
-  cursorHighlight = document.createElement('div');
-  cursorHighlight.className = 'cursor-highlight';
-  cursorHighlight.style.position = 'absolute';
-  cursorHighlight.style.backgroundColor = 'rgba(255, 255, 0, 0.3)';
-  cursorHighlight.style.pointerEvents = 'none';
-  cursorHighlight.style.display = 'none';
+  cursorHighlight = document.createElement("div");
+  cursorHighlight.className = "cursor-highlight";
+  cursorHighlight.style.position = "absolute";
+  cursorHighlight.style.backgroundColor = "rgba(255, 255, 0, 0.3)";
+  cursorHighlight.style.pointerEvents = "none";
+  cursorHighlight.style.display = "none";
   previewContainer.appendChild(cursorHighlight);
 
   // Pan events using pointer events
@@ -32,8 +32,8 @@ function initializePreview() {
   document.addEventListener("keydown", handleKeyDown);
 
   // Listen for cursor position updates from the editor
-  window.addEventListener('message', (event) => {
-    if (event.data.type === 'cursorPosition') {
+  window.addEventListener("message", (event) => {
+    if (event.data.type === "cursorPosition") {
       highlightPosition(event.data.line, event.data.column);
     }
   });
@@ -174,12 +174,12 @@ function getTransform(element) {
 function resetView() {
   currentZoom = 1; // Always reset to 100%
   lastTransform = { x: 0, y: 0 };
-  
+
   const previewContent = document.getElementById("preview-content");
   if (previewContent) {
     previewContent.style.transform = `translate(${lastTransform.x}px, ${lastTransform.y}px) scale(${currentZoom})`;
   }
-  
+
   updateZoomLevel();
 }
 
@@ -232,15 +232,15 @@ function highlightPosition(line, column) {
   if (!previewContent) return;
 
   // Önceki highlight'ı temizle
-  const oldHighlights = document.querySelectorAll('.cursor-highlight');
-  oldHighlights.forEach(h => h.remove());
+  const oldHighlights = document.querySelectorAll(".cursor-highlight");
+  oldHighlights.forEach((h) => h.remove());
 
   // Yeni highlight elementi oluştur
-  const highlight = document.createElement('div');
-  highlight.className = 'cursor-highlight';
+  const highlight = document.createElement("div");
+  highlight.className = "cursor-highlight";
 
   // Cursor'ın olduğu satırdaki elementi bul
-  const elements = previewContent.querySelectorAll('.mermaid [id]');
+  const elements = previewContent.querySelectorAll(".mermaid [id]");
   let targetElement = null;
 
   for (const element of elements) {
@@ -253,25 +253,25 @@ function highlightPosition(line, column) {
   if (targetElement) {
     const rect = targetElement.getBoundingClientRect();
     const previewRect = previewContent.getBoundingClientRect();
-    
+
     highlight.style.left = `${rect.left - previewRect.left}px`;
     highlight.style.top = `${rect.top - previewRect.top}px`;
     highlight.style.width = `${rect.width}px`;
     highlight.style.height = `${rect.height}px`;
-    highlight.style.position = 'absolute';
-    highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
-    highlight.style.border = '2px solid rgba(255, 200, 0, 0.5)';
-    highlight.style.borderRadius = '3px';
-    highlight.style.pointerEvents = 'none';
-    highlight.style.zIndex = '1000';
+    highlight.style.position = "absolute";
+    highlight.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
+    highlight.style.border = "2px solid rgba(255, 200, 0, 0.5)";
+    highlight.style.borderRadius = "3px";
+    highlight.style.pointerEvents = "none";
+    highlight.style.zIndex = "1000";
 
     previewContent.appendChild(highlight);
 
     // Highlight'ı görünür yap ve kademeli olarak sönümlendir
     requestAnimationFrame(() => {
-      highlight.style.opacity = '1';
+      highlight.style.opacity = "1";
       setTimeout(() => {
-        highlight.style.opacity = '0.7';
+        highlight.style.opacity = "0.7";
       }, 500);
     });
   }

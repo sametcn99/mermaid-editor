@@ -32,9 +32,13 @@ export class MermaidEditorExtension {
     vscode.window.onDidChangeActiveColorTheme((e) => {
       if (this.webviewPanel) {
         this.webviewPanel.webview.postMessage({
-          type: 'vscode-theme-changed',
-          theme: e.kind === vscode.ColorThemeKind.Dark ? 'vscode-dark' :
-                 e.kind === vscode.ColorThemeKind.HighContrast ? 'vscode-high-contrast' : 'vscode-light'
+          type: "vscode-theme-changed",
+          theme:
+            e.kind === vscode.ColorThemeKind.Dark
+              ? "vscode-dark"
+              : e.kind === vscode.ColorThemeKind.HighContrast
+                ? "vscode-high-contrast"
+                : "vscode-light",
         });
       }
     });
