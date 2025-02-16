@@ -59,7 +59,7 @@ export class MermaidEditorExtension {
         this.context.extensionUri,
         'src',
         'core',
-        'templates'
+        'webview'
       );
       const fontAwesomeRoot = vscode.Uri.joinPath(
         this.context.extensionUri,

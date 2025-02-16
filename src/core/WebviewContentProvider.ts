@@ -23,7 +23,7 @@ export class WebviewContentProvider {
   private readonly maxContentSize = 5 * 1024 * 1024; // 5MB limit
 
   constructor(context: vscode.ExtensionContext) {
-    this.templatePath = path.join(context.extensionPath, 'src', 'core', 'templates');
+    this.templatePath = path.join(context.extensionPath, 'src', 'core', 'webview');
     if (!fs.existsSync(this.templatePath)) {
       throw new Error(`Template directory not found at: ${this.templatePath}`);
     }
