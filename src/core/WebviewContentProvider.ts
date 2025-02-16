@@ -43,7 +43,7 @@ export class WebviewContentProvider {
     }
 
     try {
-      const template = fs.readFileSync(path.join(this.templatePath, 'webview.ejs'), 'utf-8');
+      const template = fs.readFileSync(path.join(this.templatePath, 'index.ejs'), 'utf-8');
       if (!template) {
         throw new Error('Template file is empty');
       }
@@ -72,7 +72,7 @@ export class WebviewContentProvider {
         },
         {
           root: this.templatePath, // Set the root directory for includes
-          filename: path.join(this.templatePath, 'webview.ejs'), // Set the filename for proper relative path resolution
+          filename: path.join(this.templatePath, 'index.ejs'), // Set the filename for proper relative path resolution
         }
       );
 

@@ -23,7 +23,7 @@
     <script>
       window.mermaidText = `<%- mermaidText %>`;
 
-      document.addEventListener("DOMContentLoaded", async () => {
+      document.addEventListener('DOMContentLoaded', async () => {
         try {
           // Configure Mermaid
           await mermaid.initialize({
@@ -31,22 +31,20 @@
             securityLevel: 'loose',
             deterministicIds: true,
             logLevel: 5,
-            theme: document.body.classList.contains("vscode-dark")
-              ? "dark"
-              : "default",
+            theme: document.body.classList.contains('vscode-dark') ? 'dark' : 'default',
             fontFamily: 'sans-serif',
             flowchart: {
               htmlLabels: true,
               useMaxWidth: false,
-              curve: 'basis'
+              curve: 'basis',
             },
             sequence: {
               useMaxWidth: false,
-              diagramMarginY: 10
+              diagramMarginY: 10,
             },
             gantt: {
-              useMaxWidth: false
-            }
+              useMaxWidth: false,
+            },
           });
 
           // Initial diagram render
@@ -55,20 +53,20 @@
           }
 
           // Add event listeners
-          window.addEventListener("message", async (event) => {
+          window.addEventListener('message', async event => {
             const message = event.data;
             try {
               switch (message.command) {
-                case "update":
+                case 'update':
                   if (message.text) {
                     await updateDiagram(message.text);
                   }
                   break;
-                case "theme-change":
+                case 'theme-change':
                   await mermaid.initialize({
-                    theme: message.theme === "dark" ? "dark" : "default",
+                    theme: message.theme === 'dark' ? 'dark' : 'default',
                     securityLevel: 'loose',
-                    deterministicIds: true
+                    deterministicIds: true,
                   });
                   if (window.mermaidText) {
                     await updateDiagram(window.mermaidText);
@@ -76,16 +74,16 @@
                   break;
               }
             } catch (error) {
-              console.error("Message handling error:", error);
-              const mermaidDiv = document.querySelector(".mermaid");
+              console.error('Message handling error:', error);
+              const mermaidDiv = document.querySelector('.mermaid');
               if (mermaidDiv) {
                 mermaidDiv.innerHTML = `<div class="error">Error handling message: ${error.message}</div>`;
               }
             }
           });
         } catch (error) {
-          console.error("Initialization error:", error);
-          document.querySelector(".preview-container").innerHTML = `
+          console.error('Initialization error:', error);
+          document.querySelector('.preview-container').innerHTML = `
             <div class="error" style="padding: 1em; color: var(--vscode-errorForeground);">
               Failed to initialize diagram preview: ${error.message}
             </div>
