@@ -57,7 +57,61 @@
         height: 100%;
         padding: 20px;
         box-sizing: border-box;
-        overflow: auto;
+        overflow: hidden;
+        position: relative;
+        cursor: grab;
+      }
+      #preview.grabbing {
+        cursor: grabbing;
+      }
+      .preview-container {
+        position: absolute;
+        transform-origin: center center;
+        transition: transform 0.1s ease;
+      }
+      .zoom-level {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: var(--vscode-editor-background);
+        padding: 5px 10px;
+        border-radius: 4px;
+        opacity: 0.8;
+        font-size: 12px;
+      }
+      .context-menu {
+        position: fixed;
+        background: var(--vscode-menu-background);
+        border: 1px solid var(--vscode-menu-border);
+        border-radius: 4px;
+        padding: 5px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+      }
+      .context-menu-item {
+        padding: 6px 12px;
+        cursor: pointer;
+        color: var(--vscode-menu-foreground);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .context-menu-item:hover {
+        background: var(--vscode-menu-selectionBackground);
+      }
+      .keyboard-shortcuts {
+        position: absolute;
+        bottom: 40px;
+        right: 10px;
+        background: var(--vscode-editor-background);
+        padding: 8px;
+        border-radius: 4px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 12px;
+      }
+      #preview:hover .keyboard-shortcuts {
+        opacity: 0.8;
       }
       .mermaid {
         display: flex;
@@ -67,28 +121,134 @@
     </style>
     <script>
       const mermaidText = `<%- mermaidText %>`;
+      let currentZoom = 1;
+      const ZOOM_STEP = 0.1;
+      const MAX_ZOOM = 3;
+      const MIN_ZOOM = 0.3;
+      let isDragging = false;
+      let startX,
+        startY,
+        panX = 0,
+        panY = 0;
+      let contextMenu = null;
+
+      function createPreviewContainer() {
+        const container = document.createElement("div");
+        container.className = "preview-container";
+        return container;
+      }
 
       function updateDiagram(text) {
         try {
-          // Clear previous content
           const previewDiv = document.querySelector("#preview");
+          const container =
+            previewDiv.querySelector(".preview-container") ||
+            createPreviewContainer();
           const mermaidDiv = document.createElement("div");
           mermaidDiv.className = "mermaid";
           mermaidDiv.textContent = text;
 
-          // Remove old diagram
-          while (previewDiv.firstChild) {
-            previewDiv.removeChild(previewDiv.firstChild);
-          }
+          // Clear and update container
+          container.innerHTML = "";
+          container.appendChild(mermaidDiv);
 
-          // Add new diagram
-          previewDiv.appendChild(mermaidDiv);
+          if (!container.parentElement) {
+            previewDiv.appendChild(container);
+          }
 
           // Re-render mermaid diagram
           mermaid.contentLoaded();
         } catch (error) {
           console.error("Mermaid render error:", error);
         }
+      }
+
+      function setZoom(zoom) {
+        const container = document.querySelector(".preview-container");
+        currentZoom = Math.min(Math.max(zoom, MIN_ZOOM), MAX_ZOOM);
+        updateTransform();
+        updateZoomLevel();
+      }
+
+      function updateTransform() {
+        const container = document.querySelector(".preview-container");
+        container.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom})`;
+      }
+
+      function updateZoomLevel() {
+        const zoomLevel = document.querySelector(".zoom-level");
+        zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+      }
+
+      function showContextMenu(e) {
+        e.preventDefault();
+        if (contextMenu) {
+          document.body.removeChild(contextMenu);
+        }
+
+        contextMenu = document.createElement("div");
+        contextMenu.className = "context-menu";
+        contextMenu.innerHTML = `
+          <div class="context-menu-item" onclick="resetView()">Reset View</div>
+          <div class="context-menu-item" onclick="fitDiagram()">Fit to Screen</div>
+          <div class="context-menu-item" onclick="centerDiagram()">Center Diagram</div>
+        `;
+
+        contextMenu.style.left = e.pageX + "px";
+        contextMenu.style.top = e.pageY + "px";
+        document.body.appendChild(contextMenu);
+      }
+
+      function resetView() {
+        panX = 0;
+        panY = 0;
+        setZoom(1);
+        hideContextMenu();
+      }
+
+      function hideContextMenu() {
+        if (contextMenu) {
+          document.body.removeChild(contextMenu);
+          contextMenu = null;
+        }
+      }
+
+      function fitDiagram() {
+        const preview = document.querySelector("#preview");
+        const container = preview.querySelector(".preview-container");
+        const diagram = container.querySelector(".mermaid");
+
+        const scaleX = preview.clientWidth / diagram.clientWidth;
+        const scaleY = preview.clientHeight / diagram.clientHeight;
+        const scale = Math.min(scaleX, scaleY, MAX_ZOOM) * 0.9;
+
+        setZoom(scale);
+        centerDiagram();
+        hideContextMenu();
+      }
+
+      function centerDiagram() {
+        const preview = document.querySelector("#preview");
+        const container = preview.querySelector(".preview-container");
+        const diagram = container.querySelector(".mermaid");
+
+        panX = (preview.clientWidth - diagram.clientWidth * currentZoom) / 2;
+        panY = (preview.clientHeight - diagram.clientHeight * currentZoom) / 2;
+
+        updateTransform();
+        hideContextMenu();
+      }
+
+      function zoomIn() {
+        setZoom(currentZoom + ZOOM_STEP);
+      }
+
+      function zoomOut() {
+        setZoom(currentZoom - ZOOM_STEP);
+      }
+
+      function resetZoom() {
+        setZoom(1);
       }
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -106,6 +266,25 @@
         // Initial render
         updateDiagram(mermaidText);
 
+        // Add zoom control listeners
+        document.getElementById("zoomIn").addEventListener("click", zoomIn);
+        document.getElementById("zoomOut").addEventListener("click", zoomOut);
+        document
+          .getElementById("resetZoom")
+          .addEventListener("click", resetZoom);
+
+        // Add wheel zoom support with Ctrl key
+        document.getElementById("preview").addEventListener("wheel", (e) => {
+          if (e.ctrlKey) {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+              zoomIn();
+            } else {
+              zoomOut();
+            }
+          }
+        });
+
         // Add live update listener with debounce
         let timeout;
         editor.addEventListener("input", (e) => {
@@ -114,20 +293,82 @@
             updateDiagram(e.target.value);
           }, 300); // Debounce for better performance
         });
+
+        const preview = document.getElementById("preview");
+
+        // Add zoom level indicator
+        const zoomLevel = document.createElement("div");
+        zoomLevel.className = "zoom-level";
+        preview.appendChild(zoomLevel);
+        updateZoomLevel();
+
+        // Add keyboard shortcuts info
+        const shortcuts = document.createElement("div");
+        shortcuts.className = "keyboard-shortcuts";
+        shortcuts.innerHTML = `
+          Ctrl + Wheel: Zoom
+          Space + Drag: Pan
+          Ctrl + 0: Reset View
+          Ctrl + F: Fit to Screen
+        `;
+        preview.appendChild(shortcuts);
+
+        // Pan functionality
+        preview.addEventListener("mousedown", (e) => {
+          if (
+            e.button === 0 &&
+            (e.target === preview ||
+              e.target.classList.contains("preview-container") ||
+              e.target.classList.contains("mermaid"))
+          ) {
+            isDragging = true;
+            preview.classList.add("grabbing");
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+          }
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          if (isDragging) {
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            updateTransform();
+          }
+        });
+
+        document.addEventListener("mouseup", () => {
+          isDragging = false;
+          preview.classList.remove("grabbing");
+        });
+
+        // Context menu
+        preview.addEventListener("contextmenu", showContextMenu);
+        document.addEventListener("click", hideContextMenu);
+
+        // Keyboard shortcuts
+        document.addEventListener("keydown", (e) => {
+          if (e.ctrlKey) {
+            switch (e.key) {
+              case "0":
+                e.preventDefault();
+                resetView();
+                break;
+              case "f":
+                e.preventDefault();
+                fitDiagram();
+                break;
+            }
+          }
+        });
+
+        // Initial diagram setup
+        updateDiagram(mermaidText);
+        centerDiagram();
       });
     </script>
   </head>
   <body>
     <div class="toolbar">
-      <select id="diagramType">
-        <option value="flowchart">Flowchart</option>
-        <option value="sequenceDiagram">Sequence</option>
-        <option value="classDiagram">Class</option>
-        <option value="stateDiagram">State</option>
-        <option value="erDiagram">ER</option>
-        <option value="gantt">Gantt</option>
-        <option value="pie">Pie</option>
-      </select>
       <button id="exportPNG">Export PNG</button>
       <button id="exportSVG">Export SVG</button>
       <button id="copyToClipboard">Copy</button>
