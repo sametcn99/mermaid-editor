@@ -1,5 +1,7 @@
 import { IHTMLComponent } from "../interfaces/IHTMLComponent";
+import { StyleConfig } from "../interfaces/StyleConfig";
 import { DOMBuilder } from "../utils/DOMBuilder";
+import { styleConfigToCss } from "../utils/utils";
 
 export class MermaidHead implements IHTMLComponent {
   private builder: DOMBuilder;
@@ -24,14 +26,27 @@ export class MermaidHead implements IHTMLComponent {
 
   private createStyles(): HTMLStyleElement {
     const style = this.builder.createElement("style") as HTMLStyleElement;
-    style.textContent = `
-      body { padding: 10px; }
-      .mermaid {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    `;
+    style.setAttribute("type", "text/css");
+    const mermaidStyles: StyleConfig[] = [
+      {
+        selector: "body",
+        rules: {
+          padding: "10px",
+        },
+      },
+      {
+        selector: ".mermaid",
+        rules: {
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        },
+      },
+    ];
+    style.textContent =
+      styleConfigToCss(mermaidStyles[0]) +
+      "\n\n" +
+      styleConfigToCss(mermaidStyles[1]);
     return style;
   }
 
