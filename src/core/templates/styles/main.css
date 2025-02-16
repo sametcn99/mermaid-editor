@@ -20,6 +20,7 @@ body {
   min-height: 0;
   height: calc(100vh - 40px);
   overflow: hidden;
+  position: relative;
 }
 
 .toolbar {
@@ -83,6 +84,7 @@ body {
 
 #preview {
   flex: 1;
+  min-width: 200px;
   position: relative;
   overflow: hidden;
   background: var(--vscode-editor-background);
@@ -179,9 +181,10 @@ body {
 .editor-container {
   display: flex;
   flex-direction: column;
+  min-width: 200px;
   width: 50%;
-  min-width: 0;
   height: 100%;
+  position: relative;
   border-right: 1px solid var(--vscode-editor-lineHighlightBorder);
 }
 
@@ -248,4 +251,20 @@ body {
   mix-blend-mode: multiply;
   border: 2px solid rgba(255, 200, 0, 0.5);
   border-radius: 3px;
+}
+
+.splitter {
+  width: 6px;
+  background: var(--vscode-editor-lineHighlightBorder);
+  cursor: col-resize;
+  position: relative;
+  height: 100%;
+  z-index: 10;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.splitter:hover,
+.splitter.dragging {
+  background: var(--vscode-button-background);
 }

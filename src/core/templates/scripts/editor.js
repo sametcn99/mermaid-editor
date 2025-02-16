@@ -246,5 +246,52 @@ function onCursorPositionChange(position) {
   });
 }
 
+function initializeSplitter() {
+  const splitter = document.querySelector(".splitter");
+  const editorContainer = document.querySelector(".editor-container");
+  let isDragging = false;
+
+  splitter?.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    document.body.style.cursor = "col-resize";
+    splitter.classList.add("dragging");
+    document.body.style.userSelect = "none";
+
+    const content = document.querySelector(".content");
+    const contentRect = content.getBoundingClientRect();
+
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+
+      const newWidth = Math.min(
+        Math.max(200, e.clientX - contentRect.left),
+        contentRect.width - 200,
+      );
+
+      const widthPercentage = (newWidth / contentRect.width) * 100;
+      editorContainer.style.width = `${widthPercentage}%`;
+
+      if (window.monacoEditor) {
+        window.monacoEditor.layout();
+      }
+    };
+
+    const handleMouseUp = () => {
+      isDragging = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      splitter.classList.remove("dragging");
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  });
+}
+
 // Initialize editor when DOM is loaded
-document.addEventListener("DOMContentLoaded", initializeEditor);
+document.addEventListener("DOMContentLoaded", () => {
+  initializeEditor();
+  initializeSplitter();
+});
