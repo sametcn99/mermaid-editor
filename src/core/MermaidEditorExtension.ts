@@ -88,7 +88,7 @@ export class MermaidEditorExtension {
 
       // Get URIs for resources
       const cssUri = webviewPanel.webview.asWebviewUri(
-        vscode.Uri.joinPath(localResourceRoot, 'styles', 'main.css')
+        vscode.Uri.joinPath(localResourceRoot, 'styles', 'index.css')
       );
       const fontAwesomeCssUri = webviewPanel.webview.asWebviewUri(
         vscode.Uri.joinPath(fontAwesomeRoot, 'css', 'all.min.css')
@@ -113,7 +113,7 @@ export class MermaidEditorExtension {
         mermaidUri: mermaidUri.toString(),
         monacoEditorRoot: monacoEditorRootUri.toString(),
         monacoEditorUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.js',
-        monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.css',
+        monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.index.css',
       });
 
       // Handle document changes
@@ -129,7 +129,7 @@ export class MermaidEditorExtension {
             mermaidUri: mermaidUri.toString(),
             monacoEditorRoot: monacoEditorRootUri.toString(),
             monacoEditorUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.js',
-            monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.main.css',
+            monacoEditorCssUri: monacoEditorRootUri.toString() + '/vs/editor/editor.index.css',
           });
         }
       });

@@ -1,0 +1,73 @@
+#preview {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+  overflow: hidden;
+  background: var(--vscode-editor-background);
+}
+
+.preview-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  transform-origin: center center;
+  transform: scale(1);
+  will-change: transform;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+}
+
+.preview-container:active {
+  cursor: grabbing;
+}
+
+#preview-content {
+  position: absolute;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+  transform: scale(1);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+#mermaid-container.mermaid {
+  display: inline-block;
+  background: transparent;
+  pointer-events: auto;
+  min-width: 50px;
+  min-height: 50px;
+  position: relative;
+}
+
+#mermaid-container.mermaid svg {
+  display: block;
+  max-width: none;
+  max-height: none;
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+  image-rendering: optimizeQuality;
+  transform-origin: 0 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mermaid {
+  display: inline-block;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.mermaid svg {
+  display: block;
+  max-width: none;
+  max-height: none;
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+  image-rendering: optimizeQuality;
+  transform-origin: 0 0;
+}

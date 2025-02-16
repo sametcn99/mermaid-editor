@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - 40px);
+  overflow: hidden;
+  position: relative;
+}
+
+.error {
+  color: var(--vscode-errorForeground);
+  padding: 16px;
+  margin: 16px;
+  border: 1px solid var(--vscode-inputValidation-errorBorder);
+  border-radius: 4px;
+  background: var(--vscode-inputValidation-errorBackground);
+}
