@@ -10,18 +10,54 @@
         padding: 10px;
         margin: 0;
         display: flex;
+        flex-direction: column;
         height: 100vh;
+      }
+      .toolbar {
+        padding: 10px;
+        background-color: var(--vscode-editor-background);
+        border-bottom: 1px solid var(--vscode-panel-border);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .toolbar button {
+        padding: 6px 12px;
+        background: var(--vscode-button-background);
+        color: var(--vscode-button-foreground);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .toolbar button:hover {
+        background: var(--vscode-button-hoverBackground);
+      }
+      .toolbar select {
+        padding: 4px 8px;
+        background: var(--vscode-dropdown-background);
+        color: var(--vscode-dropdown-foreground);
+        border: 1px solid var(--vscode-dropdown-border);
+        border-radius: 4px;
+      }
+      .content-container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
       }
       #editor {
         width: 50%;
         height: 100%;
-        border-right: 1px solid #ccc;
+        border-right: 1px solid var(--vscode-panel-border);
+        background-color: transparent;
+        color: var(--vscode-editor-foreground);
+        resize: none;
       }
       #preview {
         width: 50%;
         height: 100%;
         padding: 20px;
         box-sizing: border-box;
+        overflow: auto;
       }
       .mermaid {
         display: flex;
@@ -30,22 +66,79 @@
       }
     </style>
     <script>
+      const mermaidText = `<%- mermaidText %>`;
+
+      function updateDiagram(text) {
+        try {
+          // Clear previous content
+          const previewDiv = document.querySelector("#preview");
+          const mermaidDiv = document.createElement("div");
+          mermaidDiv.className = "mermaid";
+          mermaidDiv.textContent = text;
+
+          // Remove old diagram
+          while (previewDiv.firstChild) {
+            previewDiv.removeChild(previewDiv.firstChild);
+          }
+
+          // Add new diagram
+          previewDiv.appendChild(mermaidDiv);
+
+          // Re-render mermaid diagram
+          mermaid.contentLoaded();
+        } catch (error) {
+          console.error("Mermaid render error:", error);
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(() => {
-          mermaid.initialize({
-            startOnLoad: true,
-            theme: "default",
-            securityLevel: "loose",
-            logLevel: "error",
-          });
-          mermaid.init(undefined, document.querySelectorAll(".mermaid"));
-        }, 500);
+        // Initialize mermaid with vscode theme detection
+        mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: "loose",
+          logLevel: "error",
+        });
+
+        // Set initial text in editor
+        const editor = document.getElementById("editor");
+        editor.value = mermaidText;
+
+        // Initial render
+        updateDiagram(mermaidText);
+
+        // Add live update listener with debounce
+        let timeout;
+        editor.addEventListener("input", (e) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            updateDiagram(e.target.value);
+          }, 300); // Debounce for better performance
+        });
       });
     </script>
   </head>
   <body>
-    <div id="preview">
-      <div class="mermaid"><%- mermaidText %></div>
+    <div class="toolbar">
+      <select id="diagramType">
+        <option value="flowchart">Flowchart</option>
+        <option value="sequenceDiagram">Sequence</option>
+        <option value="classDiagram">Class</option>
+        <option value="stateDiagram">State</option>
+        <option value="erDiagram">ER</option>
+        <option value="gantt">Gantt</option>
+        <option value="pie">Pie</option>
+      </select>
+      <button id="exportPNG">Export PNG</button>
+      <button id="exportSVG">Export SVG</button>
+      <button id="copyToClipboard">Copy</button>
+      <button id="format">Format</button>
+      <button id="zoomIn">Zoom In</button>
+      <button id="zoomOut">Zoom Out</button>
+      <button id="resetZoom">Reset Zoom</button>
+    </div>
+    <div class="content-container">
+      <textarea id="editor"></textarea>
+      <div id="preview"></div>
     </div>
   </body>
 </html>
