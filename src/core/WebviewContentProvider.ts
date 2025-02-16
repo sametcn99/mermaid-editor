@@ -9,7 +9,13 @@ export class WebviewContentProvider {
   private templatePath: string;
 
   constructor(context: vscode.ExtensionContext) {
-    this.templatePath = path.join(context.extensionPath, 'src', 'core', 'templates', 'webview.ejs');
+    this.templatePath = path.join(
+      context.extensionPath,
+      "src",
+      "core",
+      "templates",
+      "webview.ejs",
+    );
     // Validate template exists on initialization
     if (!fs.existsSync(this.templatePath)) {
       throw new Error(`Template file not found at: ${this.templatePath}`);
@@ -39,7 +45,7 @@ export class WebviewContentProvider {
       }
 
       this.content = ejs.render(template, {
-        content: mermaidText,  // Add this line to pass content
+        content: mermaidText, // Add this line to pass content
         mermaidText,
         // Add error handling helper
         errorHandler: (err: Error) => {
