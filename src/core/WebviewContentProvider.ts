@@ -47,14 +47,7 @@ export class WebviewContentProvider {
       throw new Error("Content exceeds maximum size limit of 1MB");
     }
 
-    if (!mermaidText.trim()) {
-      return this.renderError("No diagram content provided");
-    }
-
     try {
-      // Validate diagram syntax before rendering
-      this.validateDiagramSyntax(mermaidText);
-
       const template = fs.readFileSync(
         path.join(this.templatePath, "webview.ejs"),
         "utf-8",
@@ -95,19 +88,6 @@ export class WebviewContentProvider {
     } catch (error) {
       return this.renderError(
         error instanceof Error ? error.message : "Unknown error",
-      );
-    }
-  }
-
-  private validateDiagramSyntax(content: string): void {
-    // Basic syntax validation
-    const hasValidStart =
-      /^\s*(graph|sequenceDiagram|classDiagram|stateDiagram|gantt|pie|flowchart|erDiagram)/m.test(
-        content,
-      );
-    if (!hasValidStart) {
-      throw new Error(
-        "Invalid Mermaid diagram syntax: Must start with a valid diagram type",
       );
     }
   }
